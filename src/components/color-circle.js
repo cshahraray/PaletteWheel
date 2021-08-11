@@ -62,10 +62,12 @@ const ColorCircle = props => {
   useEffect(() => {
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
-    canvas.addEventListener('click', onClick, false)
+    canvas.addEventListener('click', onClick)
     //Our first draw
     context.fillStyle = `${wheelColor}`
     drawCircle(context)
+
+    return () => canvas.removeEventListener('click', onClick)
   }, )
   return (
     <>
