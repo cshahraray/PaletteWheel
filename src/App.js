@@ -1,7 +1,7 @@
 import './App.css';
 import { ChromePicker } from 'react-color'
 import React, { useState } from 'react';
-import Canvas from './comopnents/canvas';
+import ColorCircle from './components/color-circle';
 
 function App() {
   const [color, setColor] = useState('#fff');
@@ -17,7 +17,7 @@ function App() {
       onChange={ updatedColor => setColor(updatedColor)}
       />
     )} 
-    <Canvas/>
+    <ColorCircle />
 
     
     </div>
