@@ -2,6 +2,7 @@ import './App.css';
 import { ChromePicker } from 'react-color'
 import React, { useState } from 'react';
 import ColorCircle from './components/color-circle';
+import { ColorSquare } from './components/color-square';
 
 function App() {
   const [color, setColor] = useState('#fff');
