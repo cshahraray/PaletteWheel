@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { rad2Deg, getAngle, angle2Color, getHarmonies } from '../utils/circle-utils'
+import { drawCircle } from '../utils/canvas-utils'
+import { getAngle, angle2Color, getHarmonies } from '../utils/circle-utils'
 import { hsv2rgb } from '../utils/colorspace-utils'
 import { ColorSquare } from './color-square'
 
@@ -10,8 +11,6 @@ const ColorCircle = props => {
   const [mouseY, setMouseY] = useState(0)
   const [centerXY] = useState([95, 45])
   const [radius] = useState(40)
-  const [deltaX, setDeltaX] = useState(0)
-  const [deltaY, setDeltaY] = useState(0)
   const [angle, setAngle] = useState(0)
   const [wheelColor, setWheelColor] = useState('rgb(255,50,50)')
   const [harmonies, setHarmonies] = useState([0,0,0])
@@ -39,22 +38,20 @@ const ColorCircle = props => {
     // return false
   }
 
-  const drawCircle = (ctx) => {
-      ctx.beginPath();
-      ctx.arc(centerXY[0], centerXY[1], radius, 0, 2 * Math.PI);
-      ctx.stroke();      
-      ctx.fill()
-  }
+  // const drawCircle = (ctx) => {
+  //     ctx.beginPath();
+  //     ctx.arc(centerXY[0], centerXY[1], radius, 0, 2 * Math.PI);
+  //     ctx.stroke();      
+  //     ctx.fill()
+  // }
   
   //event methods
   const onClick = (e) => {
       setMouseX(e.offsetX)
       setMouseY(e.offsetY)
-      setDeltaX(mouseX - centerXY[0])
-      setDeltaY(mouseY - centerXY[1])
-      setAngle(getAngle())
-      setWheelColor(angle2Color())
-      setHarmonies(getHarmonies.bind(this)(3))
+      setAngle(getAngle(mouseX, mouseY, centerXY))
+      setWheelColor(angle2Color(angle))
+      setHarmonies(getHarmonies(angle, 3))
   }
 
   
@@ -67,7 +64,7 @@ const ColorCircle = props => {
     
     //Our first draw
     context.fillStyle = `${wheelColor}`
-    drawCircle(context)
+    drawCircle(context, centerXY, radius)
     return () => canvas.removeEventListener('click', onClick)
   },  )
 

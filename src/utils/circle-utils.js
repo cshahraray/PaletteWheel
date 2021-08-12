@@ -5,8 +5,16 @@ export const rad2Deg = (radian) => {
     return (radian + Math.PI) / (2 * Math.PI) * 360;
 }
 
-export const getAngle = () => {
-    return rad2Deg(Math.atan2(deltaY, deltaX))
+export const getDeltas = (mouseX, mouseY, centerCoords) => {
+    const deltaX = mouseX - centerCoords[0];
+    const deltaY = mouseY - centerCoords[1];
+
+    return [deltaX, deltaY];
+}
+
+export const getAngle = (mouseX, mouseY, centerCoords) => {
+    const deltas = getDeltas(mouseX, mouseY, centerCoords);
+    return rad2Deg(Math.atan2(deltas[0], deltas[1]))
 }
 
 //helper methods for color calculations
@@ -16,7 +24,7 @@ export const angle2Color = (angle) => {
     return `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`
   }
 
-export const getHarmonies = (numHarmonies) => {
+export const getHarmonies = (angle, numHarmonies) => {
     const angleOffset = 360/(numHarmonies+1);
     const harmoniesArr = [];
 
