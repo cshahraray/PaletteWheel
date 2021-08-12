@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { rad2Deg } from '../utils/circle-math-utils'
 import { hsv2rgb } from '../utils/colorspace-utils'
+import { ColorSquare } from './color-square'
 
 const ColorCircle = props => {
   //state variables
@@ -13,24 +14,24 @@ const ColorCircle = props => {
   const [deltaY, setDeltaY] = useState(0)
   const [angle, setAngle] = useState(0)
   const [wheelColor, setWheelColor] = useState('rgb(255,50,50)')
-  const [harmonies, setHarmonies] = useState([0])
+  const [harmonies, setHarmonies] = useState([0,0,0])
   
   //helper methods
   const getAngle = () => {
     return rad2Deg(Math.atan2(deltaY, deltaX))
   }
 
-  const angle2Color = () => {
-    let rgbArr = hsv2rgb(angle, .5, .5)
+  const angle2Color = (angle) => {
+    const rgbArr = hsv2rgb(angle, .5, .5)
     return `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`
   }
 
   const getHarmonies = (numHarmonies) => {
-    let angleOffset = 360/(numHarmonies+1);
-    let harmoniesArr = [];
+    const angleOffset = 360/(numHarmonies+1);
+    const harmoniesArr = [];
 
     for (let i = 0; i < numHarmonies; i++) {
-      if (i===0) {
+      if (i === 0) {
         harmoniesArr.push((angle + angleOffset) % 360)
       } else {
         harmoniesArr.push((harmoniesArr[i-1] + angleOffset) % 360)
@@ -73,7 +74,7 @@ const ColorCircle = props => {
       setDeltaY(mouseY - centerXY[1])
       setAngle(getAngle())
       setWheelColor(angle2Color())
-      setHarmonies(getHarmonies(3))
+      setHarmonies(getHarmonies.bind(this)(3))
   }
 
   
@@ -87,9 +88,17 @@ const ColorCircle = props => {
     //Our first draw
     context.fillStyle = `${wheelColor}`
     drawCircle(context)
-
     return () => canvas.removeEventListener('click', onClick)
   },  )
+
+  const renderHarmonies = () => {
+    const arr = harmonies.map( (harmony, ix) => (
+       <ColorSquare key={ix} color={angle2Color(harmony)} />
+    ))
+
+    return arr
+  
+    }
 
   return (
     <>
@@ -105,8 +114,14 @@ const ColorCircle = props => {
     {wheelColor}
     <br></br>
     {harmonies}
+    {harmonies.map( harmony => <p>{angle2Color(harmony)}</p>)}
+        <br></br>
+        {renderHarmonies()}
+
+        {angle2Color(90)}
+        {angle2Color(180)}
+
     </>
   )
 }
-
 export default ColorCircle

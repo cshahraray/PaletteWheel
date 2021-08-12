@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react'
 
-export const ColorSquare = (...props) => {
+export const ColorSquare = (props) => {
+    let color = props.color
     const canvasRef = useRef(null)
     
 
     const drawRect = (ctx) => {
-        ctx.fillStyle = 'red'
+        ctx.fillStyle = color;
         ctx.beginPath();
         ctx.rect(20, 20, 150, 100);
         ctx.stroke();
@@ -20,7 +21,11 @@ export const ColorSquare = (...props) => {
     })
 
     return (
+        <>
         <canvas ref={canvasRef} {...props}/>
+        <br></br>
+        {color}
+        </>
     )
 }
 

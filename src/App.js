@@ -11,13 +11,13 @@ function App() {
   return (
     <>
     <div>
-    <button onClick={ () => setShowColorPicker(!showColorPicker)} > Toggle </button>
+    {/* <button onClick={ () => setShowColorPicker(!showColorPicker)} > Toggle </button>
     { showColorPicker && ( 
       <ChromePicker
       color={color}
       onChange={ updatedColor => setColor(updatedColor)}
       />
-    )} 
+    )}  */}
     <ColorCircle />
 
     
