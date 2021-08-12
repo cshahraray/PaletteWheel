@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { rad2Deg } from '../utils/circle-math-utils'
+import { rad2Deg, getAngle, angle2Color, getHarmonies } from '../utils/circle-utils'
 import { hsv2rgb } from '../utils/colorspace-utils'
 import { ColorSquare } from './color-square'
 
@@ -17,30 +17,10 @@ const ColorCircle = props => {
   const [harmonies, setHarmonies] = useState([0,0,0])
   
   //helper methods
-  const getAngle = () => {
-    return rad2Deg(Math.atan2(deltaY, deltaX))
-  }
 
-  const angle2Color = (angle) => {
-    const rgbArr = hsv2rgb(angle, .5, .5)
-    return `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`
-  }
 
-  const getHarmonies = (numHarmonies) => {
-    const angleOffset = 360/(numHarmonies+1);
-    const harmoniesArr = [];
 
-    for (let i = 0; i < numHarmonies; i++) {
-      if (i === 0) {
-        harmoniesArr.push((angle + angleOffset) % 360)
-      } else {
-        harmoniesArr.push((harmoniesArr[i-1] + angleOffset) % 360)
-      }
-    }
-    console.log(harmoniesArr)
-    return harmoniesArr;
 
-  }
   //canvas methods
 
   const resizeCanvasToDisplaySize = (canvas) => {
