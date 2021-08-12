@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { drawCircle } from '../utils/canvas-utils'
-import { getAngle, angle2Color, getHarmonies } from '../utils/circle-utils'
+import { getAngle, angle2Color, getHarmonies, getDeltas, getCirclePoint } from '../utils/circle-utils'
 import { hsv2rgb } from '../utils/colorspace-utils'
 import { ColorSquare } from './color-square'
 
@@ -10,34 +10,20 @@ const ColorCircle = props => {
   const [mouseX, setMouseX] = useState(0)
   const [mouseY, setMouseY] = useState(0)
   const [centerXY] = useState([95, 45])
+  const [deltaXY, setDeltaXY] = useState([])
   const [radius] = useState(40)
   const [angle, setAngle] = useState(0)
   const [wheelColor, setWheelColor] = useState('rgb(255,50,50)')
   const [harmonies, setHarmonies] = useState([0,0,0])
-  
-  //helper methods
+  const [handleCenter, setHandleCenter] = useState([95,5])
+
 
 
 
 
   //canvas methods
 
-  const resizeCanvasToDisplaySize = (canvas) => {
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-    // console.log('resize canvas')
-    // console.log(canvas.getBoundingClientRect())
-    // const { width, height } = canvas.getBoundingClientRect()
-
-    // if (canvas.width !== width || canvas.height !== height) {
-    //   canvas.width = width
-    //   canvas.height = height
-    //   return true // here you can return some usefull information like delta width and delta height instead of just true
-    //   // this information can be used in the next redraw...
-    // }
-    // return false
-  }
-
+  
   // const drawCircle = (ctx) => {
   //     ctx.beginPath();
   //     ctx.arc(centerXY[0], centerXY[1], radius, 0, 2 * Math.PI);
@@ -49,7 +35,9 @@ const ColorCircle = props => {
   const onClick = (e) => {
       setMouseX(e.offsetX)
       setMouseY(e.offsetY)
-      setAngle(getAngle(mouseX, mouseY, centerXY))
+      setDeltaXY(getDeltas(mouseX, mouseY, centerXY))
+      setAngle(getAngle(deltaXY))
+      setHandleCenter(getCirclePoint(angle, radius, centerXY))
       setWheelColor(angle2Color(angle))
       setHarmonies(getHarmonies(angle, 3))
   }
@@ -65,6 +53,8 @@ const ColorCircle = props => {
     //Our first draw
     context.fillStyle = `${wheelColor}`
     drawCircle(context, centerXY, radius)
+    context.fillStyle = 'blue'
+    drawCircle(context, handleCenter, 5)
     return () => canvas.removeEventListener('click', onClick)
   },  )
 

@@ -12,11 +12,16 @@ export const getDeltas = (mouseX, mouseY, centerCoords) => {
     return [deltaX, deltaY];
 }
 
-export const getAngle = (mouseX, mouseY, centerCoords) => {
-    const deltas = getDeltas(mouseX, mouseY, centerCoords);
-    return rad2Deg(Math.atan2(deltas[0], deltas[1]))
+export const getAngle = (deltaXY) => {
+    return rad2Deg(Math.atan2(deltaXY[0], deltaXY[1]))
 }
 
+export const getCirclePoint = (angle, radius, centerXY) => {
+    const x = centerXY[0] + radius * Math.cos(angle);
+    const y = centerXY[1] + radius * Math.sin(angle);
+
+    return [x,y]
+}
 //helper methods for color calculations
 
 export const angle2Color = (angle) => {
