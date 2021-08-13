@@ -22,3 +22,10 @@ const resizeCanvasToDisplaySize = (canvas) => {
     // }
     // return false
   }
+
+  // const drawCircle = (ctx) => {
+  //     ctx.beginPath();
+  //     ctx.arc(centerXY[0], centerXY[1], radius, 0, 2 * Math.PI);
+  //     ctx.stroke();      
+  //     ctx.fill()
+  // }

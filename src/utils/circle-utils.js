@@ -27,7 +27,7 @@ export const getCirclePoint = (angle, radius, centerXY) => {
 export const angle2Color = (angle) => {
     const rgbArr = hsv2rgb(angle, .5, .5)
     return `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`
-  }
+}
 
 export const getHarmonies = (angle, numHarmonies) => {
     const angleOffset = 360/(numHarmonies+1);

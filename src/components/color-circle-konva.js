@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Stage, Layer, Circle } from "react-konva";
-import { angle2Color, getAngle, getCirclePoint } from '../utils/circle-utils';
-import { getDeltas } from '../utils/konva-circle-utils';
+// import {  } from '../utils/circle-utils';
+// import { getCirclePoint } from '../utils/circle-utils';
+import { getDeltas, angle2Color, getAngle, angleDeltas2Color, getDist, dist2Sat } from '../utils/konva-circle-utils';
+
 
 export const ColorCircleKonva = (props) => {
     //state variables
@@ -10,7 +12,7 @@ export const ColorCircleKonva = (props) => {
     const [deltaXY, setDeltaXY] = useState([])
     const radius = 100
     const [angle, setAngle] = useState(0)
-    const [wheelColor, setWheelColor] = useState('rgb(255,50,50)')
+    const [wheelColor, setWheelColor] = useState(angle2Color(angle))
     const [harmonies, setHarmonies] = useState([0,0,0])
     const [handleCenter, setHandleCenter] = useState([300, 200])
     const windowWidth = window.innerWidth
@@ -47,8 +49,11 @@ export const ColorCircleKonva = (props) => {
             // console.log(circleXY)
             const deltas = getDeltas(circleXY, centerXY)
             // console.log(deltas)
+            // console.log(deltas)
+            
+            console.log(dist2Sat(deltas,radius))
             setAngle(getAngle(deltas))
-            setWheelColor(angle2Color(angle))
+            setWheelColor(angleDeltas2Color(angle, deltas, radius))
         }
 
     }
