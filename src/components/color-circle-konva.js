@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Stage, Layer, Circle } from "react-konva";
-import { angle2Color, getAngle, getCirclePoint, getDeltas } from '../utils/circle-utils';
+import { angle2Color, getAngle, getCirclePoint } from '../utils/circle-utils';
+import { getDeltas } from '../utils/konva-circle-utils';
+
 export const ColorCircleKonva = (props) => {
     //state variables
     const [mouseXY, setMouseXY] = useState(0)
@@ -38,6 +40,19 @@ export const ColorCircleKonva = (props) => {
         else return pos;
       }
 
+    const drag = () => {
+
+        if (handlerCircle.current) {
+            const circleXY = [handlerCircle.current.attrs.x, handlerCircle.current.attrs.y]
+            // console.log(circleXY)
+            const deltas = getDeltas(circleXY, centerXY)
+            // console.log(deltas)
+            setAngle(getAngle(deltas))
+            setWheelColor(angle2Color(angle))
+        }
+
+    }
+
     return (
     
         <Stage ref={stage} width={windowWidth} height={windowHeight} >
@@ -47,7 +62,7 @@ export const ColorCircleKonva = (props) => {
                 <Circle x={200} y={200} width={200} height={200} fill={wheelColor}  />
             </Layer>
             <Layer>
-                <Circle ref={handlerCircle} x={300} y={200} width={30} height={30} fill='blue' draggable dragBoundFunc={bindHandlerDrag}/>
+                <Circle ref={handlerCircle} x={300} y={200} width={30} height={30} fill='blue' draggable dragBoundFunc={bindHandlerDrag} onDragMove={drag}/>
 
             </Layer>
         </Stage>
