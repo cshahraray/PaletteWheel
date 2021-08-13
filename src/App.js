@@ -18,8 +18,8 @@ function App() {
       onChange={ updatedColor => setColor(updatedColor)}
       />
     )}  */}
-    <ColorCircle />
-
+    {/* <ColorCircle /> */}
+    
     
     </div>
       <div id='color-wheel'></div>
