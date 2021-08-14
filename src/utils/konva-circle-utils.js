@@ -42,18 +42,34 @@ export const angle2Color = (angle) => {
 //map to hue and saturation values
 //return RGB values as strig for fill
 
-
+//scale distance of controllor from center of wheel
+//to saturation values
 export const dist2Sat = (deltaXY, radius) => {
     const dist = getDist(deltaXY);
     return (dist / radius)
 }
 
-export const angleDeltas2Color = (angle, dXY, radius) => {
-    const sat = dist2Sat(dXY, radius)
+export const angleSat2Color = (angle, sat) => {
     const rgbArr = hsv2rgb(angle, sat, .8);
     return `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`;
 
 }
 
-//scale distance of controllor from center of wheel
-//to saturation values
+
+
+export const getHarmonies = (numHarmonies, angle) => {
+    const angleOffset = 360/(numHarmonies+1);
+    const harmoniesArr = [];
+
+    for (let i = 0; i < numHarmonies; i++) {
+      if (i === 0) {
+        harmoniesArr.push((angle + angleOffset) % 360)
+      } else {
+        harmoniesArr.push((harmoniesArr[i-1] + angleOffset) % 360)
+      }
+    }
+    console.log(harmoniesArr)
+    return harmoniesArr;
+
+}
+

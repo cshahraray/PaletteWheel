@@ -61,4 +61,3 @@ export const angle2Color = (angle) => {
 }
 
 
-//
