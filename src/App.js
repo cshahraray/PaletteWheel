@@ -10,9 +10,6 @@ function App() {
   return (
     <>
     <div>
-    {window.getAngle = getAngle}
-    {window.getDist = getDist}
-    {window.getCirclePoint = getCirclePoint}
 
     <ColorCircleKonva/>
     

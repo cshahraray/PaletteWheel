@@ -60,8 +60,10 @@ export const dist2Sat = (deltaXY, radius) => {
 
 export const angleSat2Color = (angle, sat) => {
     let rgbArr
+    let v
+    sat < .5 ? v= sat : v = 1 - sat
     // if (angle >= 0) {
-        rgbArr = hsv2rgb(angle, sat, sat)
+        rgbArr = hsv2rgb(angle, (sat), 1 - (v * v))
     // } else {
     //     rgbArr = hsv2rgb((360 + angle), sat, .8 )
     // }
@@ -70,7 +72,7 @@ export const angleSat2Color = (angle, sat) => {
 
 
 
-export const getHarmonies = (numHarmonies, angle) => {
+export const getHarmonies = (numHarmonies, angle, dist, saturation, centerXY) => {
     const angleOffset = 360/(numHarmonies+1);
     const harmoniesArr = [];
 
@@ -78,8 +80,18 @@ export const getHarmonies = (numHarmonies, angle) => {
         harmoniesArr.push(((angle + (angleOffset * (i+1))) % 360))
     }
     
-    // console.log(harmoniesArr)
-    return harmoniesArr;
+    let harmoniesObjArr = {}
+    harmoniesArr.forEach( (harmony, ix) => {
+        harmoniesObjArr[ix] = {
+            key: `H${ix}`,
+            x: getCirclePoint(harmony, dist, centerXY)[0],
+            y: getCirclePoint(harmony, dist, centerXY)[1],
+            angle: harmony,
+            fill: angleSat2Color(harmony, saturation)
+        }
+    });
+
+    return harmoniesObjArr;
 
 }
 
