@@ -4,7 +4,8 @@ import { hsv2rgb } from "./colorspace-utils";
 //Circle Math helper methods:
 //convert radians to degrees
 export const rad2Deg = (radian) => {
-    return (radian + Math.PI) / (2 * Math.PI) * 360;
+    const deg = (radian  * 180/Math.PI);
+    return deg < 0 ? (360+deg) : deg
 }
 
 ///get dX dY for distance and angle calculations
@@ -30,6 +31,14 @@ export const getAngle = (deltaXY2) => {
     return rad2Deg(Math.atan2(deltaXY2[0], deltaXY2[1]))
 }
 
+//given an angle and radius, return the corresponding
+//point on circle
+export const getCirclePoint = (angle, distance, centerXY) => {
+    const x = Math.round(Math.round(Math.cos(angle * Math.PI/180) * distance + centerXY[0]));
+    const y = Math.round(Math.round(Math.sin(angle * Math.PI/180) * distance + centerXY[0]));
+    
+    return [y,x]
+}
 
 ////given an angle (in degrees) return the
 //corresponding color RGB values as string for fill
@@ -50,9 +59,13 @@ export const dist2Sat = (deltaXY, radius) => {
 }
 
 export const angleSat2Color = (angle, sat) => {
-    const rgbArr = hsv2rgb(angle, sat, .8);
+    let rgbArr
+    // if (angle >= 0) {
+        rgbArr = hsv2rgb(angle, sat, sat)
+    // } else {
+    //     rgbArr = hsv2rgb((360 + angle), sat, .8 )
+    // }
     return `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`;
-
 }
 
 
@@ -62,13 +75,10 @@ export const getHarmonies = (numHarmonies, angle) => {
     const harmoniesArr = [];
 
     for (let i = 0; i < numHarmonies; i++) {
-      if (i === 0) {
-        harmoniesArr.push((angle + angleOffset) % 360)
-      } else {
-        harmoniesArr.push((harmoniesArr[i-1] + angleOffset) % 360)
-      }
+        harmoniesArr.push(((angle + (angleOffset * (i+1))) % 360))
     }
-    console.log(harmoniesArr)
+    
+    // console.log(harmoniesArr)
     return harmoniesArr;
 
 }
