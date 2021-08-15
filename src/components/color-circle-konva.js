@@ -1,17 +1,47 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Stage, Layer, Circle, Text } from "react-konva";
 import {Html} from "react-konva-utils"
 // import {  } from '../utils/circle-utils';
 // import { getCirclePoint } from '../utils/circle-utils';
-import { getCirclePoint, getDeltas, angle2Color, getAngle, angleSat2Color, getDist, dist2Sat, getHarmonies, getComplement } from '../utils/konva-circle-utils';
+import { getCirclePoint, getDeltas, angle2Color, getAngle, angleSat2Color, getDist, dist2Sat, getHarmonies, getComplement, getHarmonyObj } from '../utils/konva-circle-utils';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { Button } from '@material-ui/core';
+//action consatants
+const ACTIONS = {
+    UPDATE_HARMONIES: 'UPDATE_HARMONIES',
+    UPDATE_HARMONY: 'UPDATE_HARMONY'
 
+}
+function reducer(state, action) {
+    switch(action.type) {
+        case ACTIONS.UPDATE_HARMONIES:
+            let {numHarmonies, angle, dist, saturation, centerXY} = action;
+            return getHarmonies(numHarmonies, angle, dist, saturation, centerXY);
+
+        case ACTIONS.UPDATE_HARMONY:
+            const pointXY = [action.x, action.y];
+            const ix = action.ix;
+            harmDeltas = getDeltas(pointXY, action.centerXY)
+            harmDist = getDist(harmDeltas)
+            harmAngle = getAngle(harmDeltas)
+            harmSat = dist2Sat(harmDist, action.radius)
+            newHarm = getHarmonyObj()
+            newState = Object.assign({}, state, state[ix]= newHarm)
+
+        default:
+            return state
+    }
+}
 
 export const ColorCircleKonva = (props) => {
+
+
+
+
+
     //state variables
     const [centerXY] = useState([200, 200])
     const radius = 100
@@ -20,22 +50,21 @@ export const ColorCircleKonva = (props) => {
     const [saturation, setSaturation] = useState(dist2Sat(dist, radius))
     const [numHarmonies, setNumHarmonies] = useState(2)
     const [toggleComplement, setToggleComplement] = useState(false)
-
     const [wheelColor, setWheelColor] = useState(angle2Color(angle))
-    const [harmonies, setHarmonies] = useState(getHarmonies(numHarmonies, angle, dist, saturation, centerXY))
     const [complement, setComplement] = useState(getComplement(numHarmonies, angle, dist, saturation, centerXY))
-
     const [handleCenter, setHandleCenter] = useState(getCirclePoint(0, dist, centerXY))
     const [toggleHarmonies, setToggleHarmonies] = useState(false)
 
-    const windowWidth = window.innerWidth
-    const windowHeight = window.innerHeight
-    
+    //reducer variable
+    const initState = getHarmonies(numHarmonies, angle, dist, saturation, centerXY )
+    const [harmonies, dispatch] = useReducer(reducer, initState)
+
+    //refs
     const harmoniesRef = useRef(null)
     const handlerCircle = useRef(null)
     const stage = useRef(null)
  
-    //event methods for handler
+    //helper methods for keeping handler drag within circle
     const bindHandlerDrag = (pos) => {
         const x = centerXY[0]
         const y = centerXY[1]
@@ -50,10 +79,12 @@ export const ColorCircleKonva = (props) => {
         else return pos;
       }
 
+    //event methods
     const drag = () => {
 
         if (handlerCircle.current) {
-            setHandleCenter([handlerCircle.current.attrs.x, handlerCircle.current.attrs.y])
+       
+                setHandleCenter([handlerCircle.current.attrs.x, handlerCircle.current.attrs.y])}
             // console.log(circleXY)
            
             // console.log(deltas)
@@ -79,20 +110,34 @@ export const ColorCircleKonva = (props) => {
         setToggleComplement(numHarmonies === 3 ? true : !toggleComplement)
     }
 
+    
+
     useEffect( () => {
         const deltas = getDeltas(handleCenter, centerXY)
  
         setAngle(getAngle(deltas))
         setDist(getDist(deltas))
         setSaturation(dist2Sat(dist, radius))
-        setHarmonies(getHarmonies(numHarmonies, angle, dist, saturation, centerXY))
+
+        if (!toggleHarmonies) {
+            dispatch(
+                {
+                type: ACTIONS.UPDATE_HARMONIES,
+                numHarmonies, 
+                angle, 
+                dist, 
+                saturation, 
+                centerXY
+                })
+        }
+
+        if (toggleComplement) {
+            setComplement(getComplement(numHarmonies, angle, dist, saturation, centerXY))
+        }
         
         setWheelColor(angleSat2Color(angle, saturation))
-    }, [handleCenter, numHarmonies])
-  
-    useEffect( () => {
-        setComplement(getComplement(numHarmonies, angle, dist, saturation, centerXY))
-    }, [toggleComplement, angle])
+    }, [handleCenter, numHarmonies, toggleComplement, toggleHarmonies])
+
 
     return (
         <>
@@ -129,8 +174,8 @@ export const ColorCircleKonva = (props) => {
                     value={toggleHarmonies}
                     onChange={handleToggleHarmoniesInput}
                     >
-                    <MenuItem key={1} value={true}>Fixed</MenuItem>
-                    <MenuItem key={2} value={false}>Custom</MenuItem>
+                    <MenuItem key={1} value={true}>Custom</MenuItem>
+                    <MenuItem key={2} value={false}>Fixed</MenuItem>
                     </Select>
                     </FormControl>
                     {numHarmonies < 3  && 
@@ -174,14 +219,40 @@ export const ColorCircleKonva = (props) => {
                     x={handleCenter[0]}
                     y={handleCenter[1]} 
                     text={`Angle: ${angle} Location: ${handleCenter} From Formula: ${getCirclePoint(angle, dist, centerXY)} Sat: ${saturation}`}/>
-                {harmonies && Object.values(harmonies).map( (harmony, ix) => 
-                    <Circle 
-                        key={harmony.key} 
-                        x={harmony.x} 
-                        y = {harmony.y} 
+               
+                {numHarmonies>0 && Object.values(harmonies).map( (harmony, ix) => 
+                    toggleHarmonies ? < Circle 
+                        ref={harmoniesRef}
+                        key={ix} 
+                        x= {harmony.x} 
+                        y= {harmony.y}
+                        draggable
+                        dragBoundFunc={bindHandlerDrag}
+                        onDragMove={
+                            () => {
+                                if (harmoniesRef.current){
+                                    dispatch({
+                                        type: ACTIONS.UPDATE_HARMONY,
+                                        x: harmoniesRef.current.attrs.x,
+                                        y: harmoniesRef.current.attrs.y,
+                                        ix,
+                                        centerXY,
+                                        radius
+                                    })
+                                }
+                            }
+                        }
                         width={30} 
                         height={30} 
-                        fill={harmony.fill} />
+                        fill={harmony.fill} /> : < Circle 
+                                                    ref={harmoniesRef}
+                                                    key={harmony.key} 
+                                                    x={harmony.x} 
+                                                    y = {harmony.y} 
+                                                    width={30} 
+                                                    height={30} 
+                                                    fill={harmony.fill} />
+
 
                     
                 )}
