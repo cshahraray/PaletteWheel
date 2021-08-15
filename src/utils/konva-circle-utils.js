@@ -27,8 +27,8 @@ export const getDist = (deltaXY) => {
 //get angle of arc from center point
 
 
-export const getAngle = (deltaXY2) => {
-    return rad2Deg(Math.atan2(deltaXY2[0], deltaXY2[1]))
+export const getAngle = (deltaXY) => {
+    return rad2Deg(Math.atan2(deltaXY[0], deltaXY[1]))
 }
 
 //given an angle and radius, return the corresponding
@@ -70,14 +70,16 @@ export const angleSat2Color = (angle, sat) => {
 }
 
 
-export const getHarmonyObj = (key, angle, dist, sat, centerXY) => {
+export const getHarmonyObj = (key, angle, sat, pointXY) => {
     const harmonyObj = {
         key: key,
-        x: getCirclePoint(angle, dist, centerXY)[0],
-        y: getCirclePoint(angle, dist, centerXY)[1],
+        x: pointXY[0],
+        y: pointXY[1],
         angle: angle,
         fill: angleSat2Color(angle, sat)
     }
+
+    return harmonyObj
 
 }
 
