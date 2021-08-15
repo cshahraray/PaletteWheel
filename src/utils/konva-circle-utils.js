@@ -53,8 +53,7 @@ export const angle2Color = (angle) => {
 
 //scale distance of controllor from center of wheel
 //to saturation values
-export const dist2Sat = (deltaXY, radius) => {
-    const dist = getDist(deltaXY);
+export const dist2Sat = (dist, radius) => {
     return (dist / radius)
 }
 
@@ -71,8 +70,10 @@ export const angleSat2Color = (angle, sat) => {
 }
 
 
+// export const getHarmony = (angle, dist,)
 
-export const getHarmonies = (numHarmonies, angle, dist, saturation, centerXY) => {
+
+export const getHarmonies = (numHarmonies, angle, dist, sat, centerXY) => {
     const angleOffset = 360/(numHarmonies+1);
     const harmoniesArr = [];
 
@@ -83,11 +84,11 @@ export const getHarmonies = (numHarmonies, angle, dist, saturation, centerXY) =>
     let harmoniesObjArr = {}
     harmoniesArr.forEach( (harmony, ix) => {
         harmoniesObjArr[ix] = {
-            key: `H${ix}`,
+            key: ix,
             x: getCirclePoint(harmony, dist, centerXY)[0],
             y: getCirclePoint(harmony, dist, centerXY)[1],
             angle: harmony,
-            fill: angleSat2Color(harmony, saturation)
+            fill: angleSat2Color(harmony, sat)
         }
     });
 
@@ -95,3 +96,20 @@ export const getHarmonies = (numHarmonies, angle, dist, saturation, centerXY) =>
 
 }
 
+export const getComplement = (numHarmonies, angle, dist, sat, centerXY) => {
+    if(numHarmonies === 4) {
+        return null;
+    }
+    
+    const compAngle = (angle + 180) % 360
+    let complement = {
+            key: 'complement',
+            x: getCirclePoint(compAngle, dist, centerXY)[0],
+            y: getCirclePoint(compAngle, dist, centerXY)[1],
+            angle: compAngle,
+            fill: angleSat2Color(compAngle, sat)
+        }
+
+    return complement;
+
+}

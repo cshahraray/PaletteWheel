@@ -3,11 +3,13 @@ import { Stage, Layer, Circle, Text } from "react-konva";
 import {Html} from "react-konva-utils"
 // import {  } from '../utils/circle-utils';
 // import { getCirclePoint } from '../utils/circle-utils';
-import { getCirclePoint, getDeltas, angle2Color, getAngle, angleSat2Color, getDist, dist2Sat, getHarmonies } from '../utils/konva-circle-utils';
+import { getCirclePoint, getDeltas, angle2Color, getAngle, angleSat2Color, getDist, dist2Sat, getHarmonies, getComplement } from '../utils/konva-circle-utils';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import { Button } from '@material-ui/core';
+
 
 export const ColorCircleKonva = (props) => {
     //state variables
@@ -15,12 +17,17 @@ export const ColorCircleKonva = (props) => {
     const radius = 100
     const [angle, setAngle] = useState(0)
     const [dist, setDist] = useState(radius)
-    const [saturation, setSaturation] = useState(0)
+    const [saturation, setSaturation] = useState(dist2Sat(dist, radius))
     const [numHarmonies, setNumHarmonies] = useState(2)
+    const [toggleComplement, setToggleComplement] = useState(false)
 
     const [wheelColor, setWheelColor] = useState(angle2Color(angle))
     const [harmonies, setHarmonies] = useState(getHarmonies(numHarmonies, angle, dist, saturation, centerXY))
+    const [complement, setComplement] = useState(getComplement(numHarmonies, angle, dist, saturation, centerXY))
+
     const [handleCenter, setHandleCenter] = useState(getCirclePoint(0, dist, centerXY))
+    const [toggleHarmonies, setToggleHarmonies] = useState(false)
+
     const windowWidth = window.innerWidth
     const windowHeight = window.innerHeight
     
@@ -64,22 +71,28 @@ export const ColorCircleKonva = (props) => {
         setNumHarmonies(e.target.value)
     }
 
+    const handleToggleHarmoniesInput = (e) => {
+        setToggleHarmonies(e.target.value)
+    }
+
+    const handleToggleComplementInput = (e) => {
+        setToggleComplement(numHarmonies === 3 ? true : !toggleComplement)
+    }
+
     useEffect( () => {
         const deltas = getDeltas(handleCenter, centerXY)
-        const handleAngle = getAngle(deltas)
-        const distance = getDist(deltas)
-        const sat = dist2Sat(deltas, radius)
-        const harmonies = getHarmonies(numHarmonies, handleAngle, distance, sat, centerXY)
-
-        // setDeltaXY(deltas)
-        setAngle(handleAngle)
-        setDist(distance)
-        setSaturation(sat)
-        setHarmonies(harmonies)
+ 
+        setAngle(getAngle(deltas))
+        setDist(getDist(deltas))
+        setSaturation(dist2Sat(dist, radius))
+        setHarmonies(getHarmonies(numHarmonies, angle, dist, saturation, centerXY))
         
-        setWheelColor(angleSat2Color(handleAngle, sat))
+        setWheelColor(angleSat2Color(angle, saturation))
     }, [handleCenter, numHarmonies])
   
+    useEffect( () => {
+        setComplement(getComplement(numHarmonies, angle, dist, saturation, centerXY))
+    }, [toggleComplement, angle])
 
     return (
         <>
@@ -87,7 +100,50 @@ export const ColorCircleKonva = (props) => {
             ref={stage} 
             width={windowWidth} 
             height={windowHeight} >
+                <Layer key={'inputs'}>
+                <Html transform={true} 
+                    divProps={{
+                        style: {
+                            display: "flex",
+                            alignItems: "center",
+                        }
+                    }}>
 
+                    {/*Select for number of harmonies */}
+                    <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
+                    <InputLabel># of Harmonies</InputLabel>
+                    <Select
+                    value={numHarmonies}
+                    onChange={handleHarmoniesInput}
+                    >
+                    <MenuItem key={1} value={0}>Monochrome</MenuItem>
+                    <MenuItem key={2} value={2}>Triad</MenuItem>
+                    <MenuItem key={3} value={3}>Tetrad</MenuItem>
+                    </Select>
+                    </FormControl>
+
+                    {/*Select for toggle harmonies */}
+                    <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
+                    <InputLabel>Harmonies</InputLabel>
+                    <Select
+                    value={toggleHarmonies}
+                    onChange={handleToggleHarmoniesInput}
+                    >
+                    <MenuItem key={1} value={true}>Fixed</MenuItem>
+                    <MenuItem key={2} value={false}>Custom</MenuItem>
+                    </Select>
+                    </FormControl>
+                    {numHarmonies < 3  && 
+                    <Button 
+                        variant="contained" 
+                        onClick={handleToggleComplementInput}>
+                            {toggleComplement ? "Remove Complement" : "Add Complement"} 
+                    </Button>
+                    }
+
+                </Html>
+
+            </Layer>
             <Layer key={'wheel'}> 
                 {//color picker circle
 }       
@@ -119,7 +175,6 @@ export const ColorCircleKonva = (props) => {
                     y={handleCenter[1]} 
                     text={`Angle: ${angle} Location: ${handleCenter} From Formula: ${getCirclePoint(angle, dist, centerXY)} Sat: ${saturation}`}/>
                 {harmonies && Object.values(harmonies).map( (harmony, ix) => 
-                    <>
                     <Circle 
                         key={harmony.key} 
                         x={harmony.x} 
@@ -127,32 +182,25 @@ export const ColorCircleKonva = (props) => {
                         width={30} 
                         height={30} 
                         fill={harmony.fill} />
-              
-                    </>
 
                     
                 )}
 
+                {(toggleComplement && complement) &&
+                <Circle 
+                key={complement.key} 
+                x={complement.x} 
+                y = {complement.y} 
+                width={30} 
+                height={30} 
+                fill={complement.fill} />
+
+                }
+
 
             </Layer>
-            <Layer key={'inputs'}>
-                <Html>
-                    <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
-                    <InputLabel id="demo-simple-select-filled-label"># of Harmonies</InputLabel>
-                    <Select
-                    labelId="demo-simple-select-filled-label"
-                    id="demo-simple-select-filled"
-                    value={numHarmonies}
-                    onChange={handleHarmoniesInput}
-                    >
-                    <MenuItem key={1} value={0}>Monochrome</MenuItem>
-                    <MenuItem key={2} value={2}>Triad</MenuItem>
-                    <MenuItem key={3} value={3}>Tetrad</MenuItem>
-                    </Select>
-                    </FormControl>
-                </Html>
-
-            </Layer>
+            {/* inputs */}
+            
         </Stage>
         </>
     )
