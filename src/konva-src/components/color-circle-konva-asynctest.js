@@ -48,7 +48,7 @@ function reducer(state, action) {
 const windowHeight = window.innerHeight
 const windowWidth = window.innerWidth
 
-export const ColorCircleKonva = (props) => {
+export const AsyncTest = (props) => {
     const {radius} = props;
     const [centerXY] = useState([200, 200])
     const [angle, setAngle] = useState(0)
@@ -85,7 +85,7 @@ export const ColorCircleKonva = (props) => {
 
     //promises
     const fetchHarmonies = () => {
-        await dispatch({
+        dispatch({
             type: ACTIONS.GET_HARMONIES}
         )
     }
@@ -115,6 +115,7 @@ export const ColorCircleKonva = (props) => {
 
     const customHarmCircle = (harmony, ref, index) => {
                     const assignRef = (el) => {harmoniesRef.current.push(el)}
+                    console.log(harmoniesRef)
             return(  
                     < Circle 
                         ref={assignRef}
@@ -126,11 +127,11 @@ export const ColorCircleKonva = (props) => {
                         onDragMove={
                             () => { 
                                 console.log("before func def")
-                                const updateHarm = async (ix) => {
+                                const updateHarm = (ix) => {
                                     const harm = ref.current[ix]
                                     if (harm){
                                         console.log("inside condiitonal")
-                                        await dispatch({
+                                        dispatch({
                                                         type: ACTIONS.UPDATE_HARMONY,
                                                         x: harm.attrs.x,
                                                         y: harm.attrs.y,
