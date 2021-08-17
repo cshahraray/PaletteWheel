@@ -83,6 +83,11 @@ export const getHarmonyObj = (key, angle, sat, pointXY) => {
 
 }
 
+export const dummyHarmonyObj = (key) => {
+    const harm = getHarmonyObj(key, 0, 0, [0,0]) 
+    return harm;
+}
+
 
 export const getHarmonies = (numHarmonies, angle, dist, sat, centerXY) => {
     const angleOffset = 360/(numHarmonies+1);

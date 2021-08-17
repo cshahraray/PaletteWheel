@@ -3,7 +3,7 @@ import { Stage, Layer, Circle, Text } from "react-konva";
 import {Html} from "react-konva-utils"
 // import {  } from '../utils/circle-utils';
 // import { getCirclePoint } from '../utils/circle-utils';
-import { getCirclePoint, getDeltas, angle2Color, getAngle, angleSat2Color, getDist, dist2Sat, getHarmonies, getComplement, getHarmonyObj } from '../../utils/konva-circle-utils';
+import { getCirclePoint, getDeltas, angle2Color, getAngle, angleSat2Color, getDist, dist2Sat, getHarmonies, getComplement, getHarmonyObj, dummyHarmonyObj } from '../../utils/konva-circle-utils';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -13,7 +13,8 @@ import { Button } from '@material-ui/core';
 const ACTIONS = {
     UPDATE_HARMONIES: 'UPDATE_HARMONIES',
     UPDATE_HARMONY: 'UPDATE_HARMONY',
-    GET_HARMONIES: 'GET_HARMONIES'
+    GET_HARMONIES: 'GET_HARMONIES',
+    ADD_HARMONY: 'ADD_HARMONY'
 
 }
 function reducer(state, action) {
@@ -34,10 +35,10 @@ function reducer(state, action) {
             const harmSat = dist2Sat(harmDist, action.radius)
             const newHarm = getHarmonyObj(ix, harmAngle, harmSat, action.centerXY)
             newState = Object.assign({}, state, state[ix]= newHarm)
-            // console.log(newState)
             return newState;
+        case ACTIONS.ADD_HARMONY:
+            newState = Object.assign({}, state, {4: dummyHarmonyObj(4)})
         case ACTIONS.GET_HARMONIES:
-            // console.log(state)
             return state
         default:
             // console.log(state)
@@ -54,7 +55,7 @@ export const ColorCircleKonva = (props) => {
     const [angle, setAngle] = useState(0)
     const [dist, setDist] = useState(radius)
     const [saturation, setSaturation] = useState(dist2Sat(dist, radius))
-    const [numHarmonies, setNumHarmonies] = useState(2)
+    const [numHarmonies, setNumHarmonies] = useState(3)
     const [toggleComplement, setToggleComplement] = useState(false)
     const [wheelColor, setWheelColor] = useState(angle2Color(angle))
     const [complement, setComplement] = useState(getComplement(numHarmonies, angle, dist, saturation, centerXY))
@@ -83,18 +84,40 @@ export const ColorCircleKonva = (props) => {
         else return pos;
       }
 
-    //promises
+    //reducer actions and promises
     const fetchHarmonies = () => {
-        await dispatch({
+        dispatch({
             type: ACTIONS.GET_HARMONIES}
         )
     }
+
+    const updateHarm = (ix, ref) => {
+        console.log(harmoniesRef)
+        const harm = ref.current[ix]
+        if (harm){
+            dispatch({
+                            type: ACTIONS.UPDATE_HARMONY,
+                            x: harm.attrs.x,
+                            y: harm.attrs.y,
+                            ix: ix,
+                            centerXY: centerXY,
+                            radius: radius
+            })
+        }
+    }    
+
+    const addHarm = () => {
+        dispatch({type: ACTIONS.ADD_HARMONY})
+    }
+
     //event methods
-    const drag = () => {
+    const handlerDrag = () => {
 
         if (handlerCircle.current) {
-            setHandleCenter([handlerCircle.current.attrs.x, handlerCircle.current.attrs.y])}
+            setHandleCenter([handlerCircle.current.attrs.x, handlerCircle.current.attrs.y])
+            
         }
+    }
 
     
 
@@ -125,22 +148,8 @@ export const ColorCircleKonva = (props) => {
                         dragBoundFunc={bindHandlerDrag}
                         onDragMove={
                             () => { 
-                                console.log("before func def")
-                                const updateHarm = async (ix) => {
-                                    const harm = ref.current[ix]
-                                    if (harm){
-                                        console.log("inside condiitonal")
-                                        await dispatch({
-                                                        type: ACTIONS.UPDATE_HARMONY,
-                                                        x: harm.attrs.x,
-                                                        y: harm.attrs.y,
-                                                        ix: ix,
-                                                        centerXY: centerXY,
-                                                        radius: radius
-                                        })
-                                    }
-                                }    
-                                updateHarm(harmony.key)
+                                
+                                updateHarm(harmony.key, harmoniesRef)
                             }
                         }
                         width={30} 
@@ -148,10 +157,9 @@ export const ColorCircleKonva = (props) => {
                         fill={harmony.fill} /> )
             }
 
-    const fixedHarmsCircle = (harmony, ref) => {
+    const fixedHarmsCircle = (harmony) => {
         return (
             < Circle 
-                ref={ref}
                 key={harmony.key} 
                 x={harmony.x} 
                 y = {harmony.y} 
@@ -165,14 +173,27 @@ export const ColorCircleKonva = (props) => {
         const harms = Object.values(harmonies)
         const renderedHarms = []
 
-        for (let i = 0; i < numHarmonies; i++) {
-            renderedHarms.push(customHarmCircle(harms[i], harmoniesRef, i))
+
+        if (harms.length < numHarmonies) {
+            addHarm()
         }
+
+        if(toggleHarmonies) {
+            for (let i = 0; i < numHarmonies; i++) {
+                renderedHarms.push(customHarmCircle(harms[i], harmoniesRef, i))
+            }
+        } else {
+            for (let i = 0; i < numHarmonies; i++) {
+                renderedHarms.push(fixedHarmsCircle(harms[i], harmoniesRef, i))
+            }
+        }
+
+         
         // return harms.map((harmony, ix) =>
         //     customHarmCircle(harmony, harmoniesRef)
         // )
 
-        return renderedHarms
+        return renderedHarms;
     }
     
 
@@ -189,21 +210,21 @@ export const ColorCircleKonva = (props) => {
         setWheelColor(angleSat2Color(angle, saturation))
         // console.log(harmoniesRef)
 
-        // if (!toggleHarmonies) {
-        //     dispatch(
-        //         {
-        //         type: ACTIONS.UPDATE_HARMONIES,
-        //         numHarmonies, 
-        //         angle, 
-        //         dist, 
-        //         saturation, 
-        //         centerXY
-        //         })
-        // }
-           
-           fetchHarmonies()
+        if (!toggleHarmonies) {
+            dispatch(
+                {
+                type: ACTIONS.UPDATE_HARMONIES,
+                numHarmonies, 
+                angle, 
+                dist, 
+                saturation, 
+                centerXY
+                })
+        }
+        setComplement(getComplement(numHarmonies, angle, dist, saturation, centerXY))   
+        fetchHarmonies()
 
-        }, [handleCenter, numHarmonies, toggleComplement, toggleHarmonies])
+        }, [handleCenter, toggleComplement, toggleHarmonies])
 
 
     return (
@@ -278,7 +299,7 @@ export const ColorCircleKonva = (props) => {
                     fill={wheelColor} 
                     draggable 
                     dragBoundFunc={bindHandlerDrag} 
-                    onDragMove={drag}
+                    onDragMove={handlerDrag}
                 />
                 <Text 
                     key={'yalla'} 
