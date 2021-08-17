@@ -107,8 +107,7 @@ export const getHarmonies = (numHarmonies, angle, dist, sat, centerXY) => {
             fill: angleSat2Color(harmony, sat)
         }
     });
-    console.log(harmoniesObjArr)
-
+    // console.log(harmoniesObjArr)
     return harmoniesObjArr;
 
 
