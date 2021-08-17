@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { drawCircle } from '../utils/canvas-utils'
-import { getAngle, angle2Color, getHarmonies, getDeltas, getCirclePoint } from '../utils/circle-utils'
-import { hsv2rgb } from '../utils/colorspace-utils'
+import { drawCircle } from '../../utils/canvas-utils'
+import { getAngle, angle2Color, getHarmonies, getDeltas, getCirclePoint } from '../../utils/circle-utils'
+import { hsv2rgb } from '../../utils/colorspace-utils'
 import { ColorSquare } from './color-square'
 
 const ColorCircle = props => {

@@ -3,7 +3,7 @@ import { Stage, Layer, Circle, Text } from "react-konva";
 import {Html} from "react-konva-utils"
 // import {  } from '../utils/circle-utils';
 // import { getCirclePoint } from '../utils/circle-utils';
-import { getCirclePoint, getDeltas, angle2Color, getAngle, angleSat2Color, getDist, dist2Sat, getHarmonies, getComplement, getHarmonyObj } from '../utils/konva-circle-utils';
+import { getCirclePoint, getDeltas, angle2Color, getAngle, angleSat2Color, getDist, dist2Sat, getHarmonies, getComplement, getHarmonyObj } from '../../utils/konva-circle-utils';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -49,9 +49,8 @@ const windowHeight = window.innerHeight
 const windowWidth = window.innerWidth
 
 export const ColorCircleKonva = (props) => {
-
-   const [centerXY] = useState([200, 200])
-    const radius = 100
+    const {radius} = props;
+    const [centerXY] = useState([200, 200])
     const [angle, setAngle] = useState(0)
     const [dist, setDist] = useState(radius)
     const [saturation, setSaturation] = useState(dist2Sat(dist, radius))
@@ -65,9 +64,9 @@ export const ColorCircleKonva = (props) => {
     //reducer variable
     const initState = getHarmonies(numHarmonies, angle, dist, saturation, centerXY )
     const [harmonies, dispatch] = useReducer(reducer, initState)
-
+    
     //refs
-    const harmoniesRef = useRef(null)
+    const harmoniesRef = useRef([]);
     const handlerCircle = useRef(null)
     const stage = useRef(null)
  
@@ -95,21 +94,12 @@ export const ColorCircleKonva = (props) => {
     const drag = () => {
 
         if (handlerCircle.current) {
-       
             setHandleCenter([handlerCircle.current.attrs.x, handlerCircle.current.attrs.y])}
-            // console.log(circleXY)
-           
-            // console.log(deltas)
-            // console.log(deltas)
-            
-            // console.log(angle)
-            
-
         }
 
     
 
-    //event methods for inputs
+        //event methods for inputs
     const handleHarmoniesInput = (e) => {
         setNumHarmonies(e.target.value)
     }
@@ -121,6 +111,71 @@ export const ColorCircleKonva = (props) => {
     const handleToggleComplementInput = (e) => {
         setToggleComplement(numHarmonies === 3 ? true : !toggleComplement)
     }
+
+    //helper methods / component-'constructors'
+
+    const customHarmCircle = (harmony, ref, index) => {
+                    const assignRef = (el) => {harmoniesRef.current.push(el)}
+            return(  
+                    < Circle 
+                        ref={assignRef}
+                        key={harmony.key} 
+                        x= {harmony.x} 
+                        y= {harmony.y}
+                        draggable
+                        dragBoundFunc={bindHandlerDrag}
+                        onDragMove={
+                            () => { 
+                                console.log("before func def")
+                                const updateHarm = async (ix) => {
+                                    const harm = ref.current[ix]
+                                    if (harm){
+                                        console.log("inside condiitonal")
+                                        await dispatch({
+                                                        type: ACTIONS.UPDATE_HARMONY,
+                                                        x: harm.attrs.x,
+                                                        y: harm.attrs.y,
+                                                        ix: ix,
+                                                        centerXY: centerXY,
+                                                        radius: radius
+                                        })
+                                    }
+                                }    
+                                updateHarm(harmony.key).then(console.log(harmonies))
+                            }
+                        }
+                        width={30} 
+                        height={30} 
+                        fill={harmony.fill} /> )
+            }
+
+    const fixedHarmsCircle = (harmony, ref) => {
+        return (
+            < Circle 
+                ref={ref}
+                key={harmony.key} 
+                x={harmony.x} 
+                y = {harmony.y} 
+                width={30} 
+                height={30} 
+                fill={harmony.fill} />
+        )
+    }
+
+    const renderHarmonies = () => {
+        const harms = Object.values(harmonies)
+        const renderedHarms = []
+
+        for (let i = 0; i < numHarmonies; i++) {
+            renderedHarms.push(customHarmCircle(harms[i], harmoniesRef, i))
+        }
+        // return harms.map((harmony, ix) =>
+        //     customHarmCircle(harmony, harmoniesRef)
+        // )
+
+        return renderedHarms
+    }
+    
 
     
 
@@ -233,56 +288,8 @@ export const ColorCircleKonva = (props) => {
                     text={`Angle: ${angle} Location: ${handleCenter} From Formula: ${getCirclePoint(angle, dist, centerXY)} Sat: ${saturation}`}/>              
                                         
 
-                    
-                    
-                { (numHarmonies > 0 && harmonies && toggleHarmonies) && 
-                    
-                        Object.values(harmonies).map( (harmony, ix) =>  
-                                < Circle 
-                                    ref={harmoniesRef}
-                                    key={ix} 
-                                    x= {harmony.x} 
-                                    y= {harmony.y}
-                                    draggable
-                                    dragBoundFunc={bindHandlerDrag}
-                                    onDragMove={
-                                        () => { 
-                                            console.log("before func def")
-                                            const updateHarm = async (ix) => {
-                                                const harm = harmoniesRef.current
-                                                if (harm){
-                                                    console.log("inside condiitonal")
-                                                    await dispatch({
-                                                                    type: ACTIONS.UPDATE_HARMONY,
-                                                                    x: harm.attrs.x,
-                                                                    y: harm.attrs.y,
-                                                                    ix: ix,
-                                                                    centerXY: centerXY,
-                                                                    radius: radius
-                                                    })
-                                                }
-                                            }    
-                                            updateHarm(ix).then(console.log(harmonies))
-                                        }
-                                    }
-                                    width={30} 
-                                    height={30} 
-                                    fill={harmony.fill} /> )}
-
-{/*                                     
-                                { < Circle 
-                                        ref={harmoniesRef}
-                                        key={harmony.key} 
-                                        x={harmony.x} 
-                                        y = {harmony.y} 
-                                        width={30} 
-                                        height={30} 
-                                        fill={harmony.fill} />
-                                } }
-
-
-                            }
-                )} */}
+                {renderHarmonies()}
+                {/* { customHarmCircle(Object.values(harmonies)[0], harm1Ref)} */}
 
                 {(toggleComplement && complement) &&
                 <Circle 

@@ -1,6 +1,6 @@
 import './App.css';
 import React, {  } from 'react';
-import { ColorCircleKonva } from './components/color-circle-konva';
+import { ColorCircleKonva } from './konva-src/components/color-circle-konva';
 import { getAngle, getCirclePoint, getDist } from './utils/konva-circle-utils';
 
 
@@ -11,7 +11,7 @@ function App() {
     <>
     <div>
 
-    <ColorCircleKonva/>
+    <ColorCircleKonva radius={100}/>
     
     </div>
     </>
