@@ -83,8 +83,8 @@ export const getHarmonyObj = (key, angle, sat, pointXY) => {
 
 }
 
-export const dummyHarmonyObj = (key) => {
-    const harm = getHarmonyObj(key, 0, 0, [0,0]) 
+export const dummyHarmonyObj = (key, centerXY) => {
+    const harm = getHarmonyObj(key, 0, 0, centerXY) 
     return harm;
 }
 
