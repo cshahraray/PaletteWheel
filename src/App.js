@@ -11,7 +11,7 @@ function App() {
     <>
     <div>
 
-    <ColorCircleKonva radius={100}/>
+    <ColorCircleKonva />
     
     </div>
     </>

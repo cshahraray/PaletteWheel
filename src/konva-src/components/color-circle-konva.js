@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { Stage, Layer, Circle, Text } from "react-konva";
+import { Stage, Layer, Circle, Text, Rect } from "react-konva";
 import {Html} from "react-konva-utils"
 // import {  } from '../utils/circle-utils';
 // import { getCirclePoint } from '../utils/circle-utils';
@@ -55,10 +55,11 @@ const windowHeight = window.innerHeight
 const windowWidth = window.innerWidth
 
 export const ColorCircleKonva = (props) => {
-    const {radius} = props;
-    const [centerXY] = useState([200, 200])
+    const radius =  300;
+    const centerXY = [250, 250]
+    // const [centerXY] = useState([Math.round(windowWidth/3), Math.round(windowWidth/3)])
     const [angle, setAngle] = useState(0)
-    const [dist, setDist] = useState(radius)
+    const [dist, setDist] = useState(radius/2)
     const [saturation, setSaturation] = useState(dist2Sat(dist, radius))
     const [numHarmonies, setNumHarmonies] = useState(2)
     const [toggleComplement, setToggleComplement] = useState(false)
@@ -66,7 +67,6 @@ export const ColorCircleKonva = (props) => {
     const [complement, setComplement] = useState(getComplement(numHarmonies, angle, dist, saturation, centerXY))
     const [handleCenter, setHandleCenter] = useState(getCirclePoint(0, dist, centerXY))
     const [toggleHarmonies, setToggleHarmonies] = useState(false)
-    const [renderedHarms, setRenderedHarms] = useState()
     //reducer variable
     const initState = getHarmonies(numHarmonies, angle, dist, saturation, centerXY )
     const [harmonies, dispatch] = useReducer(reducer, initState)
@@ -80,8 +80,9 @@ export const ColorCircleKonva = (props) => {
     const bindHandlerDrag = (pos) => {
         const x = centerXY[0]
         const y = centerXY[1]
-        const scale = radius / Math.sqrt(Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2));
-        if (scale <= 1)
+        const deltas = getDeltas([pos.x, pos.y], [x,y])
+        const scale = (radius/2) / Math.sqrt(Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2))
+        if (scale < 1)
           return {
             y: Math.round((pos.y - y) * scale + y),
             x: Math.round((pos.x - x) * scale + x),
@@ -172,9 +173,11 @@ export const ColorCircleKonva = (props) => {
     const createHarmCircle = (harmony, index) => {
         const assignRef = (el) => {harmoniesRef.current[index]= el}
         
-        console.log(harmoniesRef.current)
+        console.log(radius)
+        console.log(handleCenter)
+        console.log(centerXY)
             return(  
-
+        
                 < Circle 
                     ref={assignRef}
                     key={harmony.key} 
@@ -200,6 +203,13 @@ export const ColorCircleKonva = (props) => {
         return renderedHarms.map( (harmony,ix) => createHarmCircle(harmony, ix))
     }
 
+    const renderHarmonieSquares = () => {
+        let harms = Object.values(harmonies)
+        let renderedHarms = []
+        harms.map((harmony, ix) => harmony.key < numHarmonies ? renderedHarms.push(harmony) : "")
+        return renderedHarms.map( (harmony,ix) => createHarmonySquare(harmony, 600+(200*ix), 300+(200*ix) ))
+    }
+
 
     useEffect( () => {
         !toggleHarmonies && updateAllHarmonies()
@@ -214,6 +224,27 @@ export const ColorCircleKonva = (props) => {
 
     }, [toggleHarmonies, numHarmonies])
 
+    const createPrimarySquare = ()=> {
+        return (<Rect
+                x={600}
+                y={150}
+                height={200}
+                width={200}
+                fill={wheelColor}
+                />)
+    }
+
+    const createHarmonySquare = (harmony, xPos, yPos) => {
+        return (<Rect
+                key={harmony.key}
+                x={xPos}
+                y={yPos}
+                height={200}
+                width={200}
+                fill={harmony.fill}
+                /> 
+                )
+    }
 
 
 
@@ -222,8 +253,8 @@ export const ColorCircleKonva = (props) => {
         <>
         <Stage 
             ref={stage} 
-            width={windowWidth} 
-            height={windowHeight} >
+            width={window.innerWidth} 
+            height={window.innerHeight} >
                 <Layer key={'inputs'}>
                 <Html transform={true} 
                     divProps={{
@@ -275,9 +306,10 @@ export const ColorCircleKonva = (props) => {
                    {/* color picker circle */}
                 <Circle 
                     x={centerXY[0]} 
-                    y={centerXY[1]} 
-                    width={200} 
-                    height={200} 
+                    y={centerXY[1]}
+                    height={radius} 
+                    width={radius}
+                    
                     fill={'gray'}  
                 />
 
@@ -317,6 +349,8 @@ export const ColorCircleKonva = (props) => {
 
                 }
 
+                {createPrimarySquare()}
+                {harmonies && renderHarmonieSquares()}
 
             </Layer>
             

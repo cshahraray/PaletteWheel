@@ -54,7 +54,7 @@ export const angle2Color = (angle) => {
 //scale distance of controllor from center of wheel
 //to saturation values
 export const dist2Sat = (dist, radius) => {
-    return (dist / radius)
+    return (dist / (radius/2))
 }
 
 export const angleSat2Color = (angle, sat) => {
