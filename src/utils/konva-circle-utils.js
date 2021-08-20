@@ -8,6 +8,8 @@ export const rad2Deg = (radian) => {
     return deg < 0 ? (360+deg) : deg
 }
 
+
+
 export const deg2Rad = (degree) => {
     const rad = degree * (Math.PI / 180)
 

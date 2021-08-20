@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Circle, Image } from 'react-konva';
-import { hsv2rgb } from '../utils/colorspace-utils';
+import { hslToRgb, hsv2rgb } from '../utils/colorspace-utils';
 import { deg2Rad, getDeltas, getDist, rad2Deg, xy2polar } from '../utils/konva-circle-utils';
 
 
-export const RainbowFill = (props) => {
+export const SatLumCircle = (props) => {
     const [imageCanvas, setImageCanvas] = useState(null);
     const {rad, xPos, yPos} = props; 
+    const hue = props.hue / 360
     const width = 2 * rad;
     const height = 2 * rad;
 
@@ -18,23 +19,19 @@ export const RainbowFill = (props) => {
 
         for (let x = -rad; x < rad; x++) {
             for (let y = -rad; y < rad; y++) {
-                let [r, phi] = xy2polar(x, y);
-                let deg = rad2Deg(phi);      
+                    let [r, phi] = xy2polar(x, y);    
                     let rowLength = 2*rad;
                     let adjustedX = x + rad; // convert x from [-50, 50] to [0, 100] (the coordinates of the image data array)
                     let adjustedY = y + rad; // convert y from [-50, 50] to [0, 100] (the coordinates of the image data array)
                     let pixelWidth = 4; // each pixel requires 4 slots in the data array
                     let index = (adjustedX + (adjustedY * rowLength)) * pixelWidth;
-
+                
                 if (r < rad) {
                   // skip all (x,y) coordinates that are outside of the circle
                     
-                    let hue = deg;
+                    let lightness = rad2Deg(phi)/360
                     let saturation = (getDist(getDeltas([adjustedX, adjustedY],[rad, rad]))) / rad;
-                    let value;
-                    saturation < .5 ? value = saturation : value = 1-saturation
-
-                    let [red, green, blue] = hsv2rgb(hue, saturation, 1- (value * value));
+                    let [red, green, blue] = hslToRgb(hue, saturation, lightness);
                     let alpha = 255;
                     
                     data[index] = red;
@@ -68,7 +65,7 @@ export const RainbowFill = (props) => {
         
 
         setImageCanvas(canvas)
-    }, [])
+    }, [hue])
 
     return(
 
@@ -80,8 +77,8 @@ export const RainbowFill = (props) => {
             scaleY={-1}
              width={2*rad} 
              height={2*rad} 
+             rotation={120}
              x={xPos} 
-             rotation={90}
               y={yPos}
                image={imageCanvas}/>
         </>

@@ -10,47 +10,11 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { Button } from '@material-ui/core';
 import { RainbowFill } from '../../graphics/rainbowfill';
+import { ACTIONS, reducer } from '../reducers/color-wheel-reducer';
+import { HarmonySquares } from './harmony-squares';
+import { SatLumCircle } from '../../graphics/sat-lum-circle-graphic';
 //action consatants
-const ACTIONS = {
-    UPDATE_ALL_HARMONIES: 'UPDATE_ALL_HARMONIES',
-    UPDATE_HARMONY: 'UPDATE_HARMONY',
-    GET_HARMONIES: 'GET_HARMONIES',
-    ADD_HARMONY: 'ADD_HARMONY'
 
-}
-function reducer(state, action) {
-
-    let newState;
-    switch(action.type) {
-        case ACTIONS.UPDATE_ALL_HARMONIES:
-            let {numHarmonies, angle, dist, saturation, centerXY} = action;
-            newState = getHarmonies(numHarmonies, angle, dist, saturation, centerXY);
-            // console.log(newState)
-            return newState;
-        case ACTIONS.UPDATE_HARMONY:
-            const pointXY = [action.x, action.y];
-            const ix = action.ix;
-            const harmDeltas = getDeltas(pointXY, action.centerXY)
-            const harmDist = getDist(harmDeltas)
-            const harmAngle = getAngle(harmDeltas)
-            const harmSat = dist2Sat(harmDist, action.radius)
-            const newHarm = getHarmonyObj(ix, harmAngle, harmSat, action.centerXY)
-            newState = Object.assign({}, state, {[ix]:  newHarm})
-            return newState;
-        case ACTIONS.ADD_HARMONY:
-            newState = Object.assign({}, state)
-            newState[action.key]= dummyHarmonyObj(action.key, action.centerXY)
-            console.log('Add harmony')
-            console.log(newState)
-            return newState;
-            
-        case ACTIONS.GET_HARMONIES:
-            return state
-        default:
-            // console.log(state)
-            return state
-    }
-}
 
 const windowHeight = window.innerHeight
 const windowWidth = window.innerWidth
@@ -95,13 +59,31 @@ export const ColorCircleKonva = (props) => {
         const x = centerXY[0]
         const y = centerXY[1]
         const deltas = getDeltas([pos.x, pos.y], [x,y])
-        const scale = (radius/2) / Math.sqrt(Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2))
-        if (scale < 1)
-          return {
-            y: Math.round((pos.y - y) * scale + y),
-            x: Math.round((pos.x - x) * scale + x),
-          };
-        else return pos;
+        const distance = getDist(deltas)
+        const scale = (radius/2) / distance
+        const scale2 =  ((radius * 2/3)/2) / distance
+        console.log('scale2')
+        console.log(scale2)
+        
+        //is the radius / new dist < 1 --> outside circle
+        //is the 2ndradius / dist < 1 --> outside second circle
+        
+        if (scale < 1) {
+                return {
+                    y: Math.round((pos.y - y) * scale + y),
+                    x: Math.round((pos.x - x) * scale + x),
+                };
+            
+        } else {
+            if (scale2 < 1) {
+                return pos;
+            } else {
+                return {
+                    y: Math.round((pos.y - y) * scale2 + y),
+                    x: Math.round((pos.x - x) * scale2 + x),
+                }
+            }
+        }
       }
 
     //reducer actions and promises
@@ -197,6 +179,8 @@ export const ColorCircleKonva = (props) => {
                     key={harmony.key} 
                     x= {harmony.x} 
                     y= {harmony.y}
+                    stroke={'gray'}
+                    strokeWidth={5}
                     draggable={toggleHarmonies}
                     dragBoundFunc={bindHandlerDrag}
                     onDragMove={
@@ -237,7 +221,7 @@ export const ColorCircleKonva = (props) => {
         }
             
 
-    }, [toggleHarmonies, numHarmonies])
+    }, [toggleHarmonies, numHarmonies, angle])
 
     const createPrimarySquare = ()=> {
         return (<Rect
@@ -326,15 +310,27 @@ export const ColorCircleKonva = (props) => {
                     rad={radius/2}
                  
                 />
+                   <SatLumCircle 
+                    xPos={centerXY[0]} 
+                    yPos={centerXY[1]}
+                    rad={radius/3}
+                    hue={angle}
+                />
+                
+
+                {createPrimarySquare()}
+                <HarmonySquares numHarmonies={numHarmonies} harmonies={harmonies}/>
                 </FastLayer> 
                 <Layer>
-           
+             
                 <Circle key={'handlerCircle'} 
                     ref={handlerCircle} 
                     x={handleCenter[0]} 
                     y={handleCenter[1]} 
                     width={30} 
                     height={30}
+                    stroke={'gray'}
+                    strokeWidth={5}
                     fill={wheelColor} 
                     draggable 
                     dragBoundFunc={bindHandlerDrag} 
@@ -358,16 +354,17 @@ export const ColorCircleKonva = (props) => {
                 y = {complement.y} 
                 width={30} 
                 height={30} 
+                stroke={'gray'}
+                    strokeWidth={5}
                 fill={complement.fill} />
 
                 }
                 </Layer>
 
-                <FastLayer>
-                {createPrimarySquare()}
-                {harmonies && renderHarmonieSquares()}
-                </FastLayer>
+               
         </Stage>
         </>
     )
+    
+
 }
