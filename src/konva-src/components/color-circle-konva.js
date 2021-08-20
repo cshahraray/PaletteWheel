@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { Stage, Layer, Circle, Text, Rect } from "react-konva";
+import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { Stage, Layer, Circle, Text, Rect, FastLayer } from "react-konva";
 import {Html} from "react-konva-utils"
 // import {  } from '../utils/circle-utils';
 // import { getCirclePoint } from '../utils/circle-utils';
@@ -9,6 +9,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { Button } from '@material-ui/core';
+import { RainbowFill } from '../../graphics/rainbowfill';
 //action consatants
 const ACTIONS = {
     UPDATE_ALL_HARMONIES: 'UPDATE_ALL_HARMONIES',
@@ -54,9 +55,22 @@ function reducer(state, action) {
 const windowHeight = window.innerHeight
 const windowWidth = window.innerWidth
 
+
 export const ColorCircleKonva = (props) => {
-    const radius =  300;
-    const centerXY = [250, 250]
+    
+
+    const sizes = {
+        window: [props.window],
+        wheel: Math.round(windowWidth/3),
+    
+    }
+    
+    const positions = {
+        wheel: [Math.round(props.window[0]* (5/12)), Math.round(props.window[1] * (5/12))]
+    }
+
+    const [radius, setRadius] =  useState(300);
+    const [centerXY, setCenterXY] = useState([400, 400])
     // const [centerXY] = useState([Math.round(windowWidth/3), Math.round(windowWidth/3)])
     const [angle, setAngle] = useState(0)
     const [dist, setDist] = useState(radius/2)
@@ -173,9 +187,9 @@ export const ColorCircleKonva = (props) => {
     const createHarmCircle = (harmony, index) => {
         const assignRef = (el) => {harmoniesRef.current[index]= el}
         
-        console.log(radius)
-        console.log(handleCenter)
-        console.log(centerXY)
+        // console.log(radius)
+        // console.log(handleCenter)
+        // console.log(centerXY)
             return(  
         
                 < Circle 
@@ -211,9 +225,10 @@ export const ColorCircleKonva = (props) => {
     }
 
 
+
+
     useEffect( () => {
         !toggleHarmonies && updateAllHarmonies()
-        
         if (toggleHarmonies) {
             for (let i = 0; i < numHarmonies; i++) {
                 if (Object.values(harmonies).length < numHarmonies && !harmonies[i])
@@ -255,7 +270,8 @@ export const ColorCircleKonva = (props) => {
             ref={stage} 
             width={window.innerWidth} 
             height={window.innerHeight} >
-                <Layer key={'inputs'}>
+                <FastLayer key={'inputs'}>
+                
                 <Html transform={true} 
                     divProps={{
                         style: {
@@ -300,22 +316,19 @@ export const ColorCircleKonva = (props) => {
                     }
 
                 </Html>
+                   
 
-            </Layer>
-            <Layer key={'wheel'}> 
+
                    {/* color picker circle */}
-                <Circle 
-                    x={centerXY[0]} 
-                    y={centerXY[1]}
-                    height={radius} 
-                    width={radius}
-                    
-                    fill={'gray'}  
+                <RainbowFill 
+                    xPos={centerXY[0]} 
+                    yPos={centerXY[1]}
+                    rad={radius/2}
+                 
                 />
-
-            </Layer>
-
-            <Layer key={'handle'}>
+                </FastLayer> 
+                <Layer>
+           
                 <Circle key={'handlerCircle'} 
                     ref={handlerCircle} 
                     x={handleCenter[0]} 
@@ -348,12 +361,12 @@ export const ColorCircleKonva = (props) => {
                 fill={complement.fill} />
 
                 }
+                </Layer>
 
+                <FastLayer>
                 {createPrimarySquare()}
                 {harmonies && renderHarmonieSquares()}
-
-            </Layer>
-            
+                </FastLayer>
         </Stage>
         </>
     )

@@ -8,6 +8,17 @@ export const rad2Deg = (radian) => {
     return deg < 0 ? (360+deg) : deg
 }
 
+export const deg2Rad = (degree) => {
+    const rad = degree * (Math.PI / 180)
+
+    return rad;
+}
+export const xy2polar = (x, y) => {
+    let r = Math.sqrt(x*x + y*y);
+    let phi = Math.atan2(y, x);
+    return [r, phi];
+}
+
 ///get dX dY for distance and angle calculations
 //input: [X,Y]; [X,Y]
 export const getDeltas = (pointXY, centerXY) => {
