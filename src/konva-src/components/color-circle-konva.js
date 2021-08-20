@@ -10,7 +10,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { Button } from '@material-ui/core';
 import { RainbowFill } from '../../graphics/rainbowfill';
-import { ACTIONS, reducer } from '../reducers/color-wheel-reducer';
+import { ACTIONS, harmoniesReducer } from '../reducers/color-wheel-reducer';
 import { HarmonySquares } from './harmony-squares';
 import { SatLumCircle } from '../../graphics/sat-lum-circle-graphic';
 //action consatants
@@ -47,7 +47,7 @@ export const ColorCircleKonva = (props) => {
     const [toggleHarmonies, setToggleHarmonies] = useState(false)
     //reducer variable
     const initState = getHarmonies(numHarmonies, angle, dist, saturation, centerXY )
-    const [harmonies, dispatch] = useReducer(reducer, initState)
+    const [harmonies, dispatch] = useReducer(harmoniesReducer, initState)
 
     //refs
     const harmoniesRef = useRef({});

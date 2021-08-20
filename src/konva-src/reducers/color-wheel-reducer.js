@@ -8,7 +8,7 @@ export const ACTIONS = {
 
 }
 
-export function reducer(state, action) {
+export function harmoniesReducer(state, action) {
 
     let newState;
     switch(action.type) {
@@ -40,4 +40,20 @@ export function reducer(state, action) {
             // console.log(state)
             return state
     }
+}
+
+export const SHD_ACTIONS = {
+    UPDATE_ALL_SHADES_ALL_COLORS: 'UPDATE_ALL_SHADES_ALL_COLORS',
+    UPDATE_SHADE_ALL_COLORS: 'UPDATE_SHADE_ALL_COLORS',
+    UPDATE_ALL_SHADES_ONE_COLOR: 'UPDATE_ALL_SHADES_ONE_COLOR',
+    UPDATE_ONE_SHADE_ONE_COLOR: 'UPDATE_ONE_SHADE_ONE_COLOR'
+}
+
+
+export function shadeReducer(state, action) {
+    let newState
+
+    case SHD_ACTIONS.UPDATE_ALL_SHADES_ALL_COLORS:
+        action.hue 
+
 }

@@ -31,7 +31,7 @@ export const SatLumCircle = (props) => {
                     
                     let lightness = rad2Deg(phi)/360
                     let saturation = (getDist(getDeltas([adjustedX, adjustedY],[rad, rad]))) / rad;
-                    let [red, green, blue] = hslToRgb(hue, saturation, lightness);
+                    let [red, green, blue] = hslToRgb(hue, saturation, lightness)
                     let alpha = 255;
                     
                     data[index] = red;
