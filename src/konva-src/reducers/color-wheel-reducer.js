@@ -1,5 +1,5 @@
-import { dist2Sat, dummyHarmonyObj, getAngle, getDeltas, getDist, getHarmonies, getHarmonyObj } from "../../utils/konva-circle-utils";
-import { getLightnessFromAngle, getSatFromDist } from "../utils/shade-utils";
+import { dist2Sat, dummyHarmonyObj, getAngle, getCirclePoint, getDeltas, getDist, getHarmonies, getHarmonyObj } from "../../utils/konva-circle-utils";
+import { getAngleFromLightness, getDistFromSat, getLightnessFromAngle, getSatFromDist } from "../utils/shade-utils";
 
 export const ACTIONS = {
     UPDATE_ALL_HARMONIES: 'UPDATE_ALL_HARMONIES',
@@ -57,30 +57,55 @@ export const SHD_ACTIONS = {
 
 export function shadeReducer(state, action) {
     Object.freeze(state)
-    let newState
-
+    let newState = Object.assign({}, state)
+    const pointXY = [action.x, action.y];
+    const ix = action.ix;
+    const shadeDeltas = getDeltas(pointXY, action.centerXY)
+    const shadeDist = getDist(shadeDeltas)
+    const shadeAngle = getAngle(shadeDeltas)
+    const shadeSat = getSatFromDist(shadeDist, action.radius)
+    const shadeLight = getLightnessFromAngle(shadeAngle)
    switch(action.type) {
-       case SHD_ACTIONS.UPDATE_SHADE:
-        newState = Object.assign({}, state)
-        const pointXY = [action.x, action.y];
-        const ix = action.ix;
-        const shadeDeltas = getDeltas(pointXY, action.centerXY)
-        const shadeDist = getDist(shadeDeltas)
-        const shadeAngle = getAngle(shadeDeltas)
-        const shadeSat = getSatFromDist(shadeDist, action.radius)
-        const shadeLight = getLightnessFromAngle(shadeAngle)
-    
-        newState[ix] = {
-            key: ix,
-            l: shadeLight,
-            s: shadeSat
+    case SHD_ACTIONS.UPDATE_SHADE:
+        newState[ix].l = shadeLight
+        newState[ix].s = shadeSat
+        return newState;
+    case SHD_ACTIONS.UPDATE_ALL_SHADES:
+        console.log("update all shades")
+        const lightValChange = shadeLight - state[ix].l
+        const satValChange = shadeSat - state[ix].s
+        let ang, distance, posXY
+        for (let ix = 0; ix < Object.values(state).length; ix++) {
+            newState[ix].l += lightValChange;
+            newState[ix].s += satValChange;
+
+            if (newState[ix].l > 100) {
+                newState[ix].l %= 100;
+            } else if (newState[ix].l < 0) {
+                newState[ix].l += 100
+            }
+
+            if (newState[ix].s > 100) {
+                newState[ix].s %= 100;
+            } else if (newState[ix].s < 0) {
+                newState[ix].s += 100
+            }
+            
+            ang = getAngleFromLightness(newState[ix].l, action.radius)
+            distance = getDistFromSat(newState[ix].s, action.radius)
+            posXY = getCirclePoint(ang, distance, action.centerXY)
+            newState[ix].x = posXY[0]
+            newState[ix].y = posXY[1]
+            newState[ix].angle = ang
+            newState[ix].distance = distance
         }
 
-        console.log(newState)
         return newState;
 
-        default:
-            return state;
+        
+
+    default:
+        return state;
    }
 
 }

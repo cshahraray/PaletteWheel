@@ -1,5 +1,5 @@
 import { hslToRgb } from "@material-ui/core"
-import { getDeltas, getDist } from "../../utils/konva-circle-utils"
+import { dist2Sat, getCirclePoint, getDeltas, getDist } from "../../utils/konva-circle-utils"
 
 //math helper methods
 export const getDistFromSat = (sat, radius) => {
@@ -28,15 +28,27 @@ export const getLightnessFromAngle = (angle) => {
 
 //map shade saturation
 
-export const getDefaultShades = () => {
-    const lightness = [10, 20, 35, 50, 75]
+export const getDefaultShades = (radius, centerXY) => {
+    const lightness = [15, 29, 48, 69, 85]
     const saturation = 100
     let shadeObj = {}
+    
+    let ang, distance, posXY
+    lightness.forEach( (lightVal, ix) => {
+        ang = getAngleFromLightness(lightVal, radius)
+        distance = getDistFromSat(saturation, radius)
+        posXY = getCirclePoint(ang, distance, centerXY)
 
-    lightness.map( (lightVal, ix) => shadeObj[ix] = {
-        key: ix,
-        l: lightVal,
-        s: saturation,   
+        shadeObj[ix] = {
+            key: ix,
+            l: lightVal,
+            s: saturation,
+            x: posXY[0],
+            y: posXY[1],
+            angle: ang,
+            distance: distance
+
+        }
     })
     
 
