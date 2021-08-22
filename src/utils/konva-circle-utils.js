@@ -21,6 +21,7 @@ export const xy2polar = (x, y) => {
     return [r, phi];
 }
 
+
 ///get dX dY for distance and angle calculations
 //input: [X,Y]; [X,Y]
 export const getDeltas = (pointXY, centerXY) => {
@@ -38,7 +39,6 @@ export const getDist = (deltaXY) => {
 }
 
 //get angle of arc from center point
-
 
 export const getAngle = (deltaXY) => {
     return rad2Deg(Math.atan2(deltaXY[0], deltaXY[1]))
@@ -66,8 +66,8 @@ export const angle2Color = (angle) => {
 
 //scale distance of controllor from center of wheel
 //to saturation values
-export const dist2Sat = (dist, radius) => {
-    return (dist / (radius/2))
+export const dist2Sat = (dist, diam) => {
+    return (dist / (diam/2))
 }
 
 export const angleSat2Color = (angle, sat) => {
@@ -81,6 +81,8 @@ export const angleSat2Color = (angle, sat) => {
     // }
     return `rgb(${rgbArr[0]}, ${rgbArr[1]}, ${rgbArr[2]})`;
 }
+
+
 
 
 export const getHarmonyObj = (key, angle, sat, pointXY) => {

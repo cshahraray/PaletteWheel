@@ -10,9 +10,10 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { Button } from '@material-ui/core';
 import { RainbowFill } from '../../graphics/rainbowfill';
-import { ACTIONS, harmoniesReducer } from '../reducers/color-wheel-reducer';
+import { ACTIONS, harmoniesReducer, SHD_ACTIONS, shadeReducer } from '../reducers/color-wheel-reducer';
 import { HarmonySquares } from './harmony-squares';
 import { SatLumCircle } from '../../graphics/sat-lum-circle-graphic';
+import { getAngleFromLightness, getDefaultShades, getDistFromSat, getOneShadeColor } from '../utils/shade-utils';
 //action consatants
 
 
@@ -34,6 +35,7 @@ export const ColorCircleKonva = (props) => {
     }
 
     const [radius, setRadius] =  useState(300);
+    const [satLumRadius, setSatLumRadius] = useState(radius/3)
     const [centerXY, setCenterXY] = useState([400, 400])
     // const [centerXY] = useState([Math.round(windowWidth/3), Math.round(windowWidth/3)])
     const [angle, setAngle] = useState(0)
@@ -45,12 +47,17 @@ export const ColorCircleKonva = (props) => {
     const [complement, setComplement] = useState(getComplement(numHarmonies, angle, dist, saturation, centerXY))
     const [handleCenter, setHandleCenter] = useState(getCirclePoint(0, dist, centerXY))
     const [toggleHarmonies, setToggleHarmonies] = useState(false)
-    //reducer variable
-    const initState = getHarmonies(numHarmonies, angle, dist, saturation, centerXY )
-    const [harmonies, dispatch] = useReducer(harmoniesReducer, initState)
-
+    //reducer variables
+    const initStateHarms = getHarmonies(numHarmonies, angle, dist, saturation, centerXY )
+    const [harmonies, dispatch] = useReducer(harmoniesReducer, initStateHarms)
+    const initStateShades = getDefaultShades()
+    const [shades, shadeDispatch] = useReducer(shadeReducer, initStateShades) 
+    
+    
+    
     //refs
     const harmoniesRef = useRef({});
+    const shadesRef = useRef({})
     const handlerCircle = useRef(null)
     const stage = useRef(null)
  
@@ -86,6 +93,25 @@ export const ColorCircleKonva = (props) => {
         }
       }
 
+    const bindShadeHandlerDrag = (pos) => {
+        const x = centerXY[0]
+        const y = centerXY[1]
+        const deltas = getDeltas([pos.x, pos.y], [x,y])
+        const distance = getDist(deltas)
+        const scale = (satLumRadius) / distance
+
+        if (scale < 1) {
+            return {
+                y: Math.round((pos.y - y) * scale + y),
+                x: Math.round((pos.x - x) * scale + x),
+            };
+        
+        } else {
+            return pos
+        }
+
+    }
+
     //reducer actions and promises
     const fetchHarmonies = async () => {
         await dispatch({
@@ -118,6 +144,21 @@ export const ColorCircleKonva = (props) => {
             })
         }
     }    
+
+    const updateShade = (ix) => {
+        // console.log(harmoniesRef)
+        const shade = shadesRef.current[ix]
+        if (shade){
+            shadeDispatch({
+                            type: SHD_ACTIONS.UPDATE_SHADE,
+                            x: shade.attrs.x,
+                            y: shade.attrs.y,
+                            ix: ix,
+                            centerXY: centerXY,
+                            radius: satLumRadius
+            })
+        }
+    }   
 
 
     const addHarm = (i) => {
@@ -168,10 +209,6 @@ export const ColorCircleKonva = (props) => {
 
     const createHarmCircle = (harmony, index) => {
         const assignRef = (el) => {harmoniesRef.current[index]= el}
-        
-        // console.log(radius)
-        // console.log(handleCenter)
-        // console.log(centerXY)
             return(  
         
                 < Circle 
@@ -191,6 +228,39 @@ export const ColorCircleKonva = (props) => {
                     width={30} 
                     height={30} 
                     fill={harmony.fill} /> )
+    }
+
+    const createShadeHandle = (shade, index) => {
+        const assignRef = (el) => {shadesRef.current[index]= el}
+        let ang = getAngleFromLightness(shade.l, satLumRadius)
+        let distance = getDistFromSat(shade.s, satLumRadius)
+        let posXY = getCirclePoint(ang, distance, centerXY)
+            
+            return( 
+                
+        
+                < Circle 
+                    ref={assignRef}
+                    key={shade.key} 
+                    x= {posXY[0]} 
+                    y= {posXY[1]}
+                    stroke={'gray'}
+                    strokeWidth={5}
+                    dragBoundFunc={bindShadeHandlerDrag}
+                    draggable
+                    onDragMove={ () => {
+                        updateShade(shade.key)
+
+                    }}
+                    width={30} 
+                    height={30} 
+                    fill={getOneShadeColor(angle, shade.s, shade.l)} /> )
+    }
+
+    const renderShadeHandles = () => {
+        let shadesArr = Object.values(shades)
+        
+        return shadesArr.map ((shade, ix) => createShadeHandle(shade, ix))
     }
    
     const renderHarmonies = () => {
@@ -221,7 +291,7 @@ export const ColorCircleKonva = (props) => {
         }
             
 
-    }, [toggleHarmonies, numHarmonies, angle])
+    }, [toggleHarmonies, numHarmonies, angle, shades])
 
     const createPrimarySquare = ()=> {
         return (<Rect
@@ -313,7 +383,7 @@ export const ColorCircleKonva = (props) => {
                    <SatLumCircle 
                     xPos={centerXY[0]} 
                     yPos={centerXY[1]}
-                    rad={radius/3}
+                    rad={satLumRadius}
                     hue={angle}
                 />
                 
@@ -345,7 +415,9 @@ export const ColorCircleKonva = (props) => {
 
                 
                 {harmonies && renderHarmonies()}
+                {shades && renderShadeHandles()}
         
+                
 
                 {(toggleComplement && complement) &&
                 <Circle 

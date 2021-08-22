@@ -1,4 +1,5 @@
 import { dist2Sat, dummyHarmonyObj, getAngle, getDeltas, getDist, getHarmonies, getHarmonyObj } from "../../utils/konva-circle-utils";
+import { getLightnessFromAngle, getSatFromDist } from "../utils/shade-utils";
 
 export const ACTIONS = {
     UPDATE_ALL_HARMONIES: 'UPDATE_ALL_HARMONIES',
@@ -43,17 +44,43 @@ export function harmoniesReducer(state, action) {
 }
 
 export const SHD_ACTIONS = {
-    UPDATE_ALL_SHADES_ALL_COLORS: 'UPDATE_ALL_SHADES_ALL_COLORS',
-    UPDATE_SHADE_ALL_COLORS: 'UPDATE_SHADE_ALL_COLORS',
-    UPDATE_ALL_SHADES_ONE_COLOR: 'UPDATE_ALL_SHADES_ONE_COLOR',
-    UPDATE_ONE_SHADE_ONE_COLOR: 'UPDATE_ONE_SHADE_ONE_COLOR'
+    UPDATE_ALL_SHADES: 'UPDATE_ALL_SHADES',
+    UPDATE_SHADE: 'UPDATE_SHADE',
 }
+
+// {
+//     lightnessVals: [10, 20, 35, 50, 75],
+//     saturationVals: [100, 100, 100, 100, 100]
+
+// }
 
 
 export function shadeReducer(state, action) {
+    Object.freeze(state)
     let newState
 
-    case SHD_ACTIONS.UPDATE_ALL_SHADES_ALL_COLORS:
-        action.hue 
+   switch(action.type) {
+       case SHD_ACTIONS.UPDATE_SHADE:
+        newState = Object.assign({}, state)
+        const pointXY = [action.x, action.y];
+        const ix = action.ix;
+        const shadeDeltas = getDeltas(pointXY, action.centerXY)
+        const shadeDist = getDist(shadeDeltas)
+        const shadeAngle = getAngle(shadeDeltas)
+        const shadeSat = getSatFromDist(shadeDist, action.radius)
+        const shadeLight = getLightnessFromAngle(shadeAngle)
+    
+        newState[ix] = {
+            key: ix,
+            l: shadeLight,
+            s: shadeSat
+        }
+
+        console.log(newState)
+        return newState;
+
+        default:
+            return state;
+   }
 
 }
