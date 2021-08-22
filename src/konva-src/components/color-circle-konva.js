@@ -17,12 +17,12 @@ import { getAngleFromLightness, getDefaultShades, getDistFromSat, getOneShadeCol
 //action consatants
 
 
-const windowHeight = window.innerHeight
-const windowWidth = window.innerWidth
 
 
 export const ColorCircleKonva = (props) => {
-    
+    const windowHeight = window.innerHeight
+    const windowWidth = window.innerWidth
+
 
     const sizes = {
         window: [props.window],
@@ -34,13 +34,13 @@ export const ColorCircleKonva = (props) => {
         wheel: [Math.round(props.window[0]* (5/12)), Math.round(props.window[1] * (5/12))]
     }
 
-    const [radius, setRadius] =  useState(300);
-    const [satLumRadius, setSatLumRadius] = useState(radius/3)
-    const [centerXY, setCenterXY] = useState([400, 400])
+    const [radius, setRadius] =  useState(Math.round(windowWidth/6));
+    const [satLumRadius, setSatLumRadius] = useState(Math.round(radius/3))
+    const [centerXY, setCenterXY] = useState([Math.round(windowWidth/11), Math.round(windowHeight/4)])
     // const [centerXY] = useState([Math.round(windowWidth/3), Math.round(windowWidth/3)])
     const [angle, setAngle] = useState(0)
-    const [dist, setDist] = useState(radius/2)
-    const [saturation, setSaturation] = useState(dist2Sat(dist, radius))
+    const [dist, setDist] = useState(Math.round(radius/2))
+    const [saturation, setSaturation] = useState(Math.round(dist2Sat(dist, radius)))
     const [numHarmonies, setNumHarmonies] = useState(2)
     const [toggleComplement, setToggleComplement] = useState(false)
     const [wheelColor, setWheelColor] = useState(angleSat2Color(angle, saturation))
@@ -246,8 +246,8 @@ export const ColorCircleKonva = (props) => {
                             setFocusHue(harmony.angle)
                         }
                     }
-                    width={30} 
-                    height={30} 
+                    width={radius/10} 
+                    height={radius/10} 
                     fill={harmony.fill} /> )
     }
 
@@ -273,8 +273,8 @@ export const ColorCircleKonva = (props) => {
                             updateShade(shade.key)
                         }
                     }}
-                    width={30} 
-                    height={30} 
+                    width={radius/15} 
+                    height={radius/15} 
                     fill={getOneShadeColor(hue, shade.s, shade.l)} />
                     
                     </> )
@@ -290,7 +290,7 @@ export const ColorCircleKonva = (props) => {
         
         let harms = Object.values(harmonies)
         let renderedHarms = []
-        harms.map((harmony, ix) => harmony.key < numHarmonies ? renderedHarms.push(harmony) : "")
+        harms.map((harmony) => harmony.key < numHarmonies ? renderedHarms.push(harmony) : "")
         return renderedHarms.map( (harmony,ix) => createHarmCircle(harmony, ix))
     }
 
@@ -317,13 +317,25 @@ export const ColorCircleKonva = (props) => {
     }, [toggleHarmonies, numHarmonies, angle, shades, toggleShades, focusHue])
 
     const createPrimarySquare = ()=> {
-        return (<Rect
-                x={600}
-                y={150}
-                height={200}
-                width={200}
-                fill={wheelColor}
-                />)
+        if (numHarmonies === 0){
+            return (
+                 <Rect
+                    x={windowWidth / 4}
+                    y={windowHeight / 10}
+                    height={radius * 2}
+                    width={radius * 2}
+                    fill={wheelColor} />
+            )
+        } else {
+            return (
+                 <Rect
+                    x={windowWidth / 4}
+                    y={windowHeight / 5}
+                    height={radius * 2}
+                    width={radius * 2}
+                    fill={wheelColor} />
+            )
+        }
     }
 
     const createHarmonySquare = (harmony, xPos, yPos) => {
@@ -347,7 +359,7 @@ export const ColorCircleKonva = (props) => {
             ref={stage} 
             width={window.innerWidth} 
             height={window.innerHeight} >
-                <FastLayer key={'inputs'}>
+                <Layer listening={false}>
                 
                 <Html transform={true} 
                     divProps={{
@@ -416,15 +428,15 @@ export const ColorCircleKonva = (props) => {
 
                 {createPrimarySquare()}
                 <HarmonySquares numHarmonies={numHarmonies} harmonies={harmonies}/>
-                </FastLayer> 
+                </Layer> 
                 <Layer>
              
                 <Circle key={'handlerCircle'} 
                     ref={handlerCircle} 
                     x={handleCenter[0]} 
                     y={handleCenter[1]} 
-                    width={30} 
-                    height={30}
+                    width={radius/10} 
+                    height={radius/10}
                     stroke={'gray'}
                     strokeWidth={5}
                     fill={wheelColor} 

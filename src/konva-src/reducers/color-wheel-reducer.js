@@ -15,6 +15,7 @@ export function harmoniesReducer(state, action) {
     switch(action.type) {
         case ACTIONS.UPDATE_ALL_HARMONIES:
             let {numHarmonies, angle, dist, saturation, centerXY} = action;
+            console.log(centerXY)
             newState = getHarmonies(numHarmonies, angle, dist, saturation, centerXY);
             // console.log(newState)
             return newState;
@@ -85,9 +86,9 @@ export function shadeReducer(state, action) {
                 newState[ix].l += 100
             }
 
-            if (newState[ix].s > 100) {
+            if (newState[ix].s >= 100) {
                 newState[ix].s %= 100;
-            } else if (newState[ix].s < 0) {
+            } else if (newState[ix].s <= 0) {
                 newState[ix].s += 100
             }
             

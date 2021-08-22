@@ -35,7 +35,7 @@ export const getDist = (deltaXY) => {
     const dXsquared = deltaXY[0] * deltaXY[0];
     const dYsquared = deltaXY[1] * deltaXY[1];
 
-    return Math.sqrt(dXsquared + dYsquared);
+    return Math.round(Math.sqrt(dXsquared + dYsquared));
 }
 
 //get angle of arc from center point
@@ -47,7 +47,7 @@ export const getAngle = (deltaXY) => {
 //given an angle and radius, return the corresponding
 //point on circle
 export const getCirclePoint = (angle, distance, centerXY) => {
-    const x = Math.round(Math.round(Math.cos(angle * Math.PI/180) * distance + centerXY[0]));
+    const x = Math.round(Math.round(Math.cos(angle * Math.PI/180) * distance + centerXY[1]));
     const y = Math.round(Math.round(Math.sin(angle * Math.PI/180) * distance + centerXY[0]));
     
     return [y,x]
