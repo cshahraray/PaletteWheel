@@ -34,9 +34,9 @@ export const ColorCircleKonva = (props) => {
         wheel: [Math.round(props.window[0]* (5/12)), Math.round(props.window[1] * (5/12))]
     }
 
-    const [radius, setRadius] =  useState(Math.round(windowWidth/6));
+    const [radius, setRadius] =  useState(Math.round(windowWidth/3));
     const [satLumRadius, setSatLumRadius] = useState(Math.round(radius/3))
-    const [centerXY, setCenterXY] = useState([Math.round(windowWidth/11), Math.round(windowHeight/4)])
+    const [centerXY, setCenterXY] = useState([Math.round(windowWidth * (5/24)), Math.round(windowHeight/2)])
     // const [centerXY] = useState([Math.round(windowWidth/3), Math.round(windowWidth/3)])
     const [angle, setAngle] = useState(0)
     const [dist, setDist] = useState(Math.round(radius/2))
@@ -298,7 +298,19 @@ export const ColorCircleKonva = (props) => {
         let harms = Object.values(harmonies)
         let renderedHarms = []
         harms.map((harmony, ix) => harmony.key < numHarmonies ? renderedHarms.push(harmony) : "")
-        return renderedHarms.map( (harmony,ix) => createHarmonySquare(harmony, 600+(200*ix), 300+(200*ix) ))
+        // return renderedHarms.map( (harmony,ix) => createHarmonySquare(harmony, 600+(200*ix), 300+(200*ix) ))
+    }
+
+    const renderComplement = () => {
+        return(<Circle 
+        key={complement.key} 
+        x={complement.x} 
+        y = {complement.y} 
+        width={radius/15} 
+        height={radius/15} 
+        stroke={'gray'}
+            strokeWidth={5}
+        fill={complement.fill} />)
     }
 
 
@@ -320,34 +332,88 @@ export const ColorCircleKonva = (props) => {
         if (numHarmonies === 0){
             return (
                  <Rect
-                    x={windowWidth / 4}
-                    y={windowHeight / 10}
-                    height={radius * 2}
-                    width={radius * 2}
+                    x={windowWidth / 2}
+                    y={centerXY[1] - (radius/2)}
+                    height={ radius }
+                    width={ radius }
                     fill={wheelColor} />
             )
         } else {
             return (
-                 <Rect
-                    x={windowWidth / 4}
-                    y={windowHeight / 5}
-                    height={radius * 2}
-                    width={radius * 2}
+                <Rect
+                    x={windowWidth / 2}
+                    y={centerXY[1] - (radius/2)}
+                    height={radius * 2/3 }
+                    width={radius * 2/3 }
                     fill={wheelColor} />
             )
         }
     }
 
-    const createHarmonySquare = (harmony, xPos, yPos) => {
-        return (<Rect
-                key={harmony.key}
-                x={xPos}
-                y={yPos}
-                height={200}
-                width={200}
-                fill={harmony.fill}
-                /> 
-                )
+    const create2NDHarmSquare = () => {
+        if (harmonies[0]) {
+            let harmony = harmonies[0]
+            return (<Rect
+                        key={harmony.key}
+                        x={windowWidth / 2 + (radius * (2/3))}
+                        y={centerXY[1] - (radius / 2    )}
+                        height={radius * (2/3)}
+                        width={radius / 3}
+                        fill={harmony.fill}
+                    /> )
+            }
+    }
+
+    const create3RDHarmSquare = () => {
+       
+        if (harmonies[1]) {
+            let harmony = harmonies[1]
+            return (<Rect
+                        key={harmony.key}
+                        x={windowWidth / 2}
+                        y={centerXY[1] - (radius / 2 ) + (radius *(2/3))}
+                        height={radius/ 3}
+                        width={radius * (2/3)}
+                        fill={harmony.fill}
+                    /> )
+            }
+    }
+
+    const create4THHarmSquare = () => {
+        if (harmonies[2]) {
+            let harmony = harmonies[2]
+            return (<Rect
+                        key={harmony.key}
+                        x={windowWidth / 2 + (radius * (2/3))}
+                        y={centerXY[1] - (radius / 2 ) + (radius *(2/3))}
+                        height={radius/ 3}
+                        width={radius / 3}
+                        fill={harmony.fill}
+                    /> )
+        } else if (toggleComplement) {
+            let harmony = complement
+            return (
+                <Rect
+                        key={harmony.key}
+                        x={windowWidth / 2 + (radius * (2/3))}
+                        y={centerXY[1] - (radius / 2 ) + (radius *(2/3))}
+                        height={radius/ 3}
+                        width={radius / 3}
+                        fill={harmony.fill}
+                    />
+            )
+        } else {
+            return (
+                <Rect
+                        x={windowWidth / 2 + (radius * (2/3))}
+                        y={centerXY[1] - (radius / 2 ) + (radius *(2/3))}
+                        height={radius/ 3}
+                        width={radius / 3}
+                        fill={wheelColor}
+                    />
+            )
+        }
+
     }
 
 
@@ -427,7 +493,9 @@ export const ColorCircleKonva = (props) => {
                 
 
                 {createPrimarySquare()}
-                <HarmonySquares numHarmonies={numHarmonies} harmonies={harmonies}/>
+                {create2NDHarmSquare()}
+                {create3RDHarmSquare()}
+                {create4THHarmSquare()}
                 </Layer> 
                 <Layer>
              
@@ -457,18 +525,7 @@ export const ColorCircleKonva = (props) => {
         
                 
 
-                {(toggleComplement && complement) &&
-                <Circle 
-                key={complement.key} 
-                x={complement.x} 
-                y = {complement.y} 
-                width={30} 
-                height={30} 
-                stroke={'gray'}
-                    strokeWidth={5}
-                fill={complement.fill} />
-
-                }
+                {(toggleComplement && complement) && renderComplement()}
                 </Layer>
 
                
