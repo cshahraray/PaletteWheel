@@ -328,66 +328,239 @@ export const ColorCircleKonva = (props) => {
 
     }, [toggleHarmonies, numHarmonies, angle, shades, toggleShades, focusHue])
 
+
+    const createPrimaryShades = (x,y, height, width) => {
+      
+        return (
+            <>
+            <Rect 
+                x={x + width/20}
+                y={y + (height * (6/10))}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={height / 5}
+                width = {width / 5}
+                fill = {getOneShadeColor(angle, shades[0].s, shades[0].l)}
+            />
+            <Rect 
+                x={x + width/20}
+                y={y + height * (3/10)}
+                height={height / 5}
+                width = {width / 5}
+                stroke={'gray'}
+                strokeWidth={1}
+                fill = {getOneShadeColor(angle, shades[1].s, shades[1].l)}
+            />
+            <Rect 
+                x={x + (width * 3/10)}
+                y={y + (height/20)}
+                height={height / 5}
+                width = {width / 5}
+                stroke={'gray'}
+                strokeWidth={1}
+                fill = {getOneShadeColor(angle, shades[3].s, shades[3].l)}
+            />
+
+<Rect 
+                x={x + (width * 6/10)}
+                y={y + (height/20)}
+                height={height / 5}
+                width = {width / 5}
+                stroke={'gray'}
+                strokeWidth={1}
+                fill = {getOneShadeColor(angle, shades[4].s, shades[4].l)}
+            />      
+            
+            
+            </>)
+
+    }
     const createPrimarySquare = ()=> {
         if (numHarmonies === 0){
+            const x= windowWidth / 2
+            const y= centerXY[1] - (radius/2)
+            const height= radius 
+            const width= radius 
             return (
+                <>
                  <Rect
-                    x={windowWidth / 2}
-                    y={centerXY[1] - (radius/2)}
-                    height={ radius }
-                    width={ radius }
+                    x = {x}
+                    y = {y}
+                    height = {height}
+                    width = {width}
                     fill={wheelColor} />
+                {createPrimaryShades(x, y, height, width)}
+                </>
             )
         } else {
+            const x = windowWidth / 2
+            const y = centerXY[1] - (radius/2)
+            const height = radius * 2/3 
+            const width =radius * 2/3
             return (
+                <>
                 <Rect
-                    x={windowWidth / 2}
-                    y={centerXY[1] - (radius/2)}
-                    height={radius * 2/3 }
-                    width={radius * 2/3 }
+                    x = {x}
+                    y = {y}
+                    height = {height}
+                    width = {width}
+                    
                     fill={wheelColor} />
+                    {createPrimaryShades(x, y, height, width)}
+                    </>
             )
         }
     }
 
+    const create2NDShades = (x,y,height, width) => {
+        const hue = harmonies[0].angle
+        return (
+            <>
+            <Rect 
+                x={x + (width * 5/8)}
+                y={y + (height * 7/10)}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={height / 6}
+                width = {height / 6}
+                fill = {getOneShadeColor(hue, shades[0].s, shades[0].l)}
+            />
+            <Rect 
+                x={x + (width * 5/8)}
+                y={y + (height * 5/10)}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={height / 6}
+                width = {height / 6}
+                fill = {getOneShadeColor(hue, shades[1].s, shades[1].l)}
+            />
+             <Rect 
+                x={x + (width * 5/8)}
+                y={y + (height * 3/10)}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={height / 6}
+                width = {height / 6}
+                fill = {getOneShadeColor(hue, shades[3].s, shades[3].l)}
+            />
+
+            <Rect 
+                x={x + (width * 5/8)}
+                y={y + (height * 1/10)}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={height / 6}
+                width = {height / 6}
+                fill = {getOneShadeColor(hue, shades[4].s, shades[4].l)}
+            />
+
+            </>
+        )
+    }
+
     const create2NDHarmSquare = () => {
+        const x= windowWidth / 2 + (radius * (2/3))
+        const y= centerXY[1] - (radius / 2    )
+        const height= radius * (2/3)
+        const width=radius / 3 
         if (harmonies[0]) {
             let harmony = harmonies[0]
-            return (<Rect
+            return (
+                <>
+                    <Rect
                         key={harmony.key}
-                        x={windowWidth / 2 + (radius * (2/3))}
-                        y={centerXY[1] - (radius / 2    )}
-                        height={radius * (2/3)}
-                        width={radius / 3}
+                        x = {x}
+                        y = {y}
+                        height = {height}
+                        width = {width}
                         fill={harmony.fill}
-                    /> )
+                    /> 
+                          {create2NDShades(x,y,height,width)}
+                    </>)
+      
             }
     }
 
+    const create3RDshades = (x,y,height, width) => {
+        const hue = harmonies[1].angle
+        return (
+            <>
+            <Rect 
+                y={y + (height * 5/8)}
+                x={x + (width * 7/10)}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={width / 6}
+                width = {width / 6}
+                fill = {getOneShadeColor(hue, shades[0].s, shades[0].l)}
+            />
+              <Rect 
+                y={y + (height * 5/8)}
+                x={x + (width * 5/10)}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={width / 6}
+                width = {width / 6}
+                fill = {getOneShadeColor(hue, shades[1].s, shades[1].l)}
+            />
+             <Rect 
+                y={y + (height * 5/8)}
+                x={x + (width * 3/10)}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={width / 6}
+                width = {width / 6}
+                fill = {getOneShadeColor(hue, shades[3].s, shades[3].l)}
+            />
+            <Rect 
+                y={y + (height * 5/8)}
+                x={x + (width * 1/10)}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={width / 6}
+                width = {width / 6}
+                fill = {getOneShadeColor(hue, shades[4].s, shades[4].l)}
+            />
+        
+
+            </>
+        )
+    }
+
     const create3RDHarmSquare = () => {
-       
+        const x= windowWidth / 2 
+        const y= centerXY[1] - (radius / 2 ) + (radius *(2/3)) 
+        const height= radius/ 3
+        const width= radius * (2/3)
+
         if (harmonies[1]) {
             let harmony = harmonies[1]
-            return (<Rect
+            return (<>
+                    <Rect
                         key={harmony.key}
-                        x={windowWidth / 2}
-                        y={centerXY[1] - (radius / 2 ) + (radius *(2/3))}
-                        height={radius/ 3}
-                        width={radius * (2/3)}
+                        x = {x}
+                        y = {y}
+                        height = {height}
+                        width = {width}
                         fill={harmony.fill}
-                    /> )
+                    />
+                    {create3RDshades(x,y, height, width)}
+                    </> )
             }
     }
 
     const create4THHarmSquare = () => {
+        const x = windowWidth / 2 + (radius * (2/3))
+        const y = centerXY[1] - (radius / 2 ) + (radius *(2/3))
+        const height = radius / 3
         if (harmonies[2]) {
             let harmony = harmonies[2]
             return (<Rect
                         key={harmony.key}
-                        x={windowWidth / 2 + (radius * (2/3))}
-                        y={centerXY[1] - (radius / 2 ) + (radius *(2/3))}
-                        height={radius/ 3}
-                        width={radius / 3}
+                        x={x}
+                        y={y}
+                        height={height}
+                        width={height}
                         fill={harmony.fill}
                     /> )
         } else if (toggleComplement) {
@@ -395,20 +568,20 @@ export const ColorCircleKonva = (props) => {
             return (
                 <Rect
                         key={harmony.key}
-                        x={windowWidth / 2 + (radius * (2/3))}
-                        y={centerXY[1] - (radius / 2 ) + (radius *(2/3))}
-                        height={radius/ 3}
-                        width={radius / 3}
+                        x={x}
+                        y={y}
+                        height={height}
+                        width={height}
                         fill={harmony.fill}
                     />
             )
         } else {
             return (
                 <Rect
-                        x={windowWidth / 2 + (radius * (2/3))}
-                        y={centerXY[1] - (radius / 2 ) + (radius *(2/3))}
-                        height={radius/ 3}
-                        width={radius / 3}
+                x={x}
+                y={y}
+                height={height}
+                width={height}
                         fill={wheelColor}
                     />
             )
