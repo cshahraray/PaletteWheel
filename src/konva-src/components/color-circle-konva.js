@@ -23,41 +23,34 @@ export const ColorCircleKonva = (props) => {
     const windowHeight = window.innerHeight
     const windowWidth = window.innerWidth
 
-
-    const sizes = {
-        window: [props.window],
-        wheel: Math.round(windowWidth/3),
-    
-    }
-    
-    const positions = {
-        wheel: [Math.round(props.window[0]* (5/12)), Math.round(props.window[1] * (5/12))]
-    }
-
     const [radius, setRadius] =  useState(Math.round(windowWidth/3));
     const [satLumRadius, setSatLumRadius] = useState(Math.round(radius/3))
     const [centerXY, setCenterXY] = useState([Math.round(windowWidth * (5/24)), Math.round(windowHeight/2)])
     // const [centerXY] = useState([Math.round(windowWidth/3), Math.round(windowWidth/3)])
     const [angle, setAngle] = useState(0)
     const [dist, setDist] = useState(Math.round(radius/2))
-    const [saturation, setSaturation] = useState(Math.round(dist2Sat(dist, radius)))
     const [numHarmonies, setNumHarmonies] = useState(2)
     const [toggleComplement, setToggleComplement] = useState(false)
-    const [wheelColor, setWheelColor] = useState(angleSat2Color(angle, saturation))
-    const [complement, setComplement] = useState(getComplement(numHarmonies, angle, dist, saturation, centerXY))
+    
     const [handleCenter, setHandleCenter] = useState(getCirclePoint(0, dist, centerXY))
     const [toggleHarmonies, setToggleHarmonies] = useState(false)
     const [toggleShades, setToggleShades] = useState(false)
     const [focusHue, setFocusHue] = useState(angle)
 
     //reducer variables
-    const initStateHarms = getHarmonies(numHarmonies, angle, dist, saturation, centerXY )
-    const [harmonies, dispatch] = useReducer(harmoniesReducer, initStateHarms)
+    
     const initStateShades = getDefaultShades(satLumRadius, centerXY)
     const [shades, shadeDispatch] = useReducer(shadeReducer, initStateShades) 
     
+    //state variables requiring initalizatin  of the reducers because we added a whole new thing to handle it :)
+    const [saturation, setSaturation] = useState(shades[2].s)
+    const [lightness, setLightness] = useState(shades[2].l)
     
+    const [wheelColor, setWheelColor] = useState(getOneShadeColor(angle, shades[2].s, shades[2].l))
+    const [complement, setComplement] = useState(getComplement(numHarmonies, angle, dist, saturation, centerXY))
     
+    const initStateHarms = getHarmonies(numHarmonies, angle, dist, saturation, centerXY )
+    const [harmonies, dispatch] = useReducer(harmoniesReducer, initStateHarms)
     //refs
     const harmoniesRef = useRef({});
     const shadesRef = useRef({})
@@ -194,15 +187,10 @@ export const ColorCircleKonva = (props) => {
             const deltas = getDeltas(handleCenter, centerXY)
             setAngle(getAngle(deltas))
             setDist(getDist(deltas))
-            setSaturation(dist2Sat(dist, radius))
-            setWheelColor(angleSat2Color(angle, saturation))
+            setWheelColor(getOneShadeColor(angle, shades[2].s, shades[2].l))
             setComplement(getComplement(numHarmonies, angle, dist, saturation, centerXY))   
 
-            setFocusHue(angle)
-          
-
-            if (!toggleHarmonies) {updateAllHarmonies()}
-            
+            setFocusHue(angle)            
         }
     }
 
@@ -248,7 +236,7 @@ export const ColorCircleKonva = (props) => {
                     }
                     width={radius/10} 
                     height={radius/10} 
-                    fill={harmony.fill} /> )
+                    fill={getOneShadeColor(harmony.angle, shades[2].s, shades[2].l)} /> )
     }
 
     const createShadeHandle = (shade, index) => {
@@ -309,14 +297,14 @@ export const ColorCircleKonva = (props) => {
         width={radius/15} 
         height={radius/15} 
         stroke={'gray'}
-            strokeWidth={5}
-        fill={complement.fill} />)
+        strokeWidth={5}
+        fill={getOneShadeColor(complement.angle, shades[2].s, shades[2].l)} />)
     }
 
 
 
 
-    useLayoutEffect( () => {
+    useEffect( () => {
         !toggleHarmonies && updateAllHarmonies()
         if (toggleHarmonies) {
             for (let i = 0; i < numHarmonies; i++) {
@@ -324,9 +312,11 @@ export const ColorCircleKonva = (props) => {
                 { addHarm(i) }            
             }
         }
+        setSaturation((shades[2].s / 100))
+        setWheelColor(getOneShadeColor(angle, shades[2].s, shades[2].l))
             
 
-    }, [toggleHarmonies, numHarmonies, angle, shades, toggleShades, focusHue])
+    }, [toggleHarmonies, toggleComplement, numHarmonies, angle, shades, toggleShades, focusHue])
 
 
     const createPrimaryShades = (x,y, height, width) => {
@@ -463,8 +453,9 @@ export const ColorCircleKonva = (props) => {
         const y= centerXY[1] - (radius / 2    )
         const height= radius * (2/3)
         const width=radius / 3 
+        
         if (harmonies[0]) {
-            let harmony = harmonies[0]
+            let harmony = harmonies[0] 
             return (
                 <>
                     <Rect
@@ -473,7 +464,7 @@ export const ColorCircleKonva = (props) => {
                         y = {y}
                         height = {height}
                         width = {width}
-                        fill={harmony.fill}
+                        fill={getOneShadeColor(harmony.angle, shades[2].s, shades[2].l)}
                     /> 
                           {create2NDShades(x,y,height,width)}
                     </>)
@@ -542,7 +533,7 @@ export const ColorCircleKonva = (props) => {
                         y = {y}
                         height = {height}
                         width = {width}
-                        fill={harmony.fill}
+                        fill={getOneShadeColor(harmony.angle, shades[2].s, shades[2].l)}
                     />
                     {create3RDshades(x,y, height, width)}
                     </> )
@@ -561,18 +552,17 @@ export const ColorCircleKonva = (props) => {
                         y={y}
                         height={height}
                         width={height}
-                        fill={harmony.fill}
+                        fill={getOneShadeColor(harmony.angle, shades[2].s, shades[2].l)}
                     /> )
         } else if (toggleComplement) {
-            let harmony = complement
             return (
                 <Rect
-                        key={harmony.key}
+                        key={'complement'}
                         x={x}
                         y={y}
                         height={height}
                         width={height}
-                        fill={harmony.fill}
+                        fill={getOneShadeColor(complement.angle, shades[2].s, shades[2].l)}
                     />
             )
         } else {

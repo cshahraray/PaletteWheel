@@ -91,7 +91,6 @@ export const getHarmonyObj = (key, angle, sat, pointXY) => {
         x: pointXY[0],
         y: pointXY[1],
         angle: angle,
-        fill: angleSat2Color(angle, sat)
     }
 
     return harmonyObj
@@ -118,8 +117,7 @@ export const getHarmonies = (numHarmonies, angle, dist, sat, centerXY) => {
             key: ix,
             x: getCirclePoint(harmony, dist, centerXY)[0],
             y: getCirclePoint(harmony, dist, centerXY)[1],
-            angle: harmony,
-            fill: angleSat2Color(harmony, sat)
+            angle: harmony
         }
     });
     // console.log(harmoniesObjArr)
@@ -139,7 +137,6 @@ export const getComplement = (numHarmonies, angle, dist, sat, centerXY) => {
             x: getCirclePoint(compAngle, dist, centerXY)[0],
             y: getCirclePoint(compAngle, dist, centerXY)[1],
             angle: compAngle,
-            fill: angleSat2Color(compAngle, sat)
         }
 
     return complement;
