@@ -26,7 +26,7 @@ export const ColorCircleKonva = (props) => {
     const [radius, setRadius] =  useState(Math.round(windowWidth/3));
     const [satLumRadius, setSatLumRadius] = useState(Math.round(radius/3))
     const [centerXY, setCenterXY] = useState([Math.round(windowWidth * (5/24)), Math.round(windowHeight/2)])
-    // const [centerXY] = useState([Math.round(windowWidth/3), Math.round(windowWidth/3)])
+    
     const [angle, setAngle] = useState(0)
     const [dist, setDist] = useState(Math.round(radius/2))
     const [numHarmonies, setNumHarmonies] = useState(2)
@@ -42,15 +42,12 @@ export const ColorCircleKonva = (props) => {
     const initStateShades = getDefaultShades(satLumRadius, centerXY)
     const [shades, shadeDispatch] = useReducer(shadeReducer, initStateShades) 
     
-    //state variables requiring initalizatin  of the reducers because we added a whole new thing to handle it cuz we're cute :)
-    const [saturation, setSaturation] = useState(shades[2].s)
-    const [lightness, setLightness] = useState(shades[2].l)
+    //state variables requiring initalizatin  of the reducers because we added a whole new thing to handle it cuz we're cute :)    
+    const [complement, setComplement] = useState(getComplement(numHarmonies, angle, dist, centerXY))
     
-    const [wheelColor, setWheelColor] = useState(getOneShadeColor(angle, shades[2].s, shades[2].l))
-    const [complement, setComplement] = useState(getComplement(numHarmonies, angle, dist, saturation, centerXY))
-    
-    const initStateHarms = getHarmonies(numHarmonies, angle, dist, saturation, centerXY )
+    const initStateHarms = getHarmonies(numHarmonies, angle, dist, centerXY )
     const [harmonies, dispatch] = useReducer(harmoniesReducer, initStateHarms)
+    
     //refs
     const harmoniesRef = useRef({});
     const shadesRef = useRef({})
@@ -70,7 +67,6 @@ export const ColorCircleKonva = (props) => {
                numHarmonies, 
                angle,
                dist,
-               saturation,
                centerXY
            })
     }
@@ -137,8 +133,7 @@ export const ColorCircleKonva = (props) => {
             const deltas = getDeltas(handleCenter, centerXY)
             setAngle(getAngle(deltas))
             setDist(getDist(deltas))
-            setWheelColor(getOneShadeColor(angle, shades[2].s, shades[2].l))
-            setComplement(getComplement(numHarmonies, angle, dist, saturation, centerXY))   
+            setComplement(getComplement(numHarmonies, angle, dist, centerXY))   
 
             setFocusHue(angle)            
         }
@@ -363,7 +358,7 @@ export const ColorCircleKonva = (props) => {
                     y = {y}
                     height = {height}
                     width = {width}
-                    fill={wheelColor} />
+                    fill={getOneShadeColor(angle, shades[2].s, shades[2].l)} />
                 {createPrimaryShades(x, y, height, width)}
                 </>
             )
@@ -380,7 +375,7 @@ export const ColorCircleKonva = (props) => {
                     height = {height}
                     width = {width}
                     
-                    fill={wheelColor} />
+                    fill={getOneShadeColor(angle, shades[2].s, shades[2].l)} />
                     {createPrimaryShades(x, y, height, width)}
                     </>
             )
@@ -625,7 +620,7 @@ export const ColorCircleKonva = (props) => {
                 y={y}
                 height={height}
                 width={height}
-                fill={wheelColor}
+                fill={getOneShadeColor(angle, shades[2].s, shades[2].l)}
                 />
                 {create4THshades(x, y, height, 'primary')}
 
@@ -647,10 +642,7 @@ export const ColorCircleKonva = (props) => {
         }
         if (numHarmonies === 3) {
             setToggleComplement(false);
-        }
-        setSaturation((shades[2].s / 100))
-        setWheelColor(getOneShadeColor(angle, shades[2].s, shades[2].l))
-            
+        }            
 
     }, [toggleHarmonies, numHarmonies, angle, shades, toggleShades, focusHue])
 
@@ -747,7 +739,7 @@ export const ColorCircleKonva = (props) => {
                     height={radius/10}
                     stroke={'gray'}
                     strokeWidth={5}
-                    fill={wheelColor} 
+                    fill={getOneShadeColor(angle, shades[2].s, shades[2].l)} 
                     draggable 
                     dragBoundFunc={bindHandlerDrag} 
                     onDragMove={handlerDrag}

@@ -85,7 +85,7 @@ export const angleSat2Color = (angle, sat) => {
 
 
 
-export const getHarmonyObj = (key, angle, sat, pointXY) => {
+export const getHarmonyObj = (key, angle, pointXY) => {
     const harmonyObj = {
         key: key,
         x: pointXY[0],
@@ -103,7 +103,7 @@ export const dummyHarmonyObj = (key, centerXY) => {
 }
 
 
-export const getHarmonies = (numHarmonies, angle, dist, sat, centerXY) => {
+export const getHarmonies = (numHarmonies, angle, dist, centerXY) => {
     const angleOffset = 360/(numHarmonies+1);
     const harmoniesArr = [];
 
@@ -126,7 +126,7 @@ export const getHarmonies = (numHarmonies, angle, dist, sat, centerXY) => {
 
 }
 
-export const getComplement = (numHarmonies, angle, dist, sat, centerXY) => {
+export const getComplement = (numHarmonies, angle, dist, centerXY) => {
     if(numHarmonies === 4) {
         return null;
     }
