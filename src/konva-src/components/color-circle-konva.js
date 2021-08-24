@@ -47,7 +47,7 @@ export const ColorCircleKonva = (props) => {
     
     const initStateHarms = getHarmonies(numHarmonies, angle, dist, centerXY )
     const [harmonies, dispatch] = useReducer(harmoniesReducer, initStateHarms)
-    
+
     //refs
     const harmoniesRef = useRef({});
     const shadesRef = useRef({})
@@ -241,6 +241,11 @@ export const ColorCircleKonva = (props) => {
     const createShadeHandle = (shade, index) => {           //maps saturation and light values to a circle
         const assignRef = (el) => {shadesRef.current[index]= el}
         const hue = focusHue
+        let stroke
+        index === 2 ? stroke = 'black' : stroke = 'gray'
+
+        let width
+        index === 2 ? width = radius/12 : width = radius/15
             return( 
                 
                 <>
@@ -249,7 +254,7 @@ export const ColorCircleKonva = (props) => {
                     key={shade.key} 
                     x= {shade.x} 
                     y= {shade.y}
-                    stroke={'gray'}
+                    stroke={stroke}
                     strokeWidth={5}
                     dragBoundFunc={bindShadeHandlerDrag}
                     draggable
@@ -260,8 +265,8 @@ export const ColorCircleKonva = (props) => {
                             updateShade(shade.key)
                         }
                     }}
-                    width={radius/15} 
-                    height={radius/15} 
+                    width={width} 
+                    height={width}
                     fill={getOneShadeColor(hue, shade.s, shade.l)} />
                     
                     </> )
@@ -288,7 +293,7 @@ export const ColorCircleKonva = (props) => {
         y = {complement.y} 
         width={radius/15} 
         height={radius/15} 
-        stroke={'gray'}
+        stroke={'white'}
         strokeWidth={5}
         fill={getOneShadeColor(complement.angle, shades[2].s, shades[2].l)} />)
     }
@@ -735,9 +740,9 @@ export const ColorCircleKonva = (props) => {
                     ref={handlerCircle} 
                     x={handleCenter[0]} 
                     y={handleCenter[1]} 
-                    width={radius/10} 
-                    height={radius/10}
-                    stroke={'gray'}
+                    width={radius/8} 
+                    height={radius/8}
+                    stroke={'black'}
                     strokeWidth={5}
                     fill={getOneShadeColor(angle, shades[2].s, shades[2].l)} 
                     draggable 
