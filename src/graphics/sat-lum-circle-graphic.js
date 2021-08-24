@@ -3,7 +3,9 @@ import { Circle, Image } from 'react-konva';
 import { hslToRgb, hsv2rgb } from '../utils/colorspace-utils';
 import { deg2Rad, getDeltas, getDist, rad2Deg, xy2polar } from '../utils/konva-circle-utils';
 
-
+//this uses the basic formula provided by [guy from rainbowfill reminder put link]
+//but i made it my own by using it to create a canvas image that maps all saturation
+//and luminance values of a given hue to a circle :) woohoo
 export const SatLumCircle = (props) => {
     const [imageCanvas, setImageCanvas] = useState(null);
     const {rad, xPos, yPos} = props; 

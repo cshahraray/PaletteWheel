@@ -17,12 +17,7 @@ function App() {
   return (
     <>
     <div>
-    <ColorCircleKonva window={[window.innerWidth, window.innerHeight]}/>
-    {/* <Stage height={windowHeight} width={windowWidth} >
-    <FastLayer>
-
-    </FastLayer>
-    </Stage> */}
+    <ColorCircleKonva/>
     </div>
     </>
   );

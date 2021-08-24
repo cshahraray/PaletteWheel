@@ -3,7 +3,11 @@ import { Circle, Image } from 'react-konva';
 import { hsv2rgb } from '../utils/colorspace-utils';
 import { deg2Rad, getDeltas, getDist, rad2Deg, xy2polar } from '../utils/konva-circle-utils';
 
+//this component maps the visible color spectrum to 
+//a circle :)
 
+//it is based on some canvas code I found here: [reminder to put the link]
+//i reactified it a bit :)
 export const RainbowFill = (props) => {
     const [imageCanvas, setImageCanvas] = useState(null);
     const {rad, xPos, yPos} = props; 

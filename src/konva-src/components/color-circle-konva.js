@@ -42,7 +42,7 @@ export const ColorCircleKonva = (props) => {
     const initStateShades = getDefaultShades(satLumRadius, centerXY)
     const [shades, shadeDispatch] = useReducer(shadeReducer, initStateShades) 
     
-    //state variables requiring initalizatin  of the reducers because we added a whole new thing to handle it :)
+    //state variables requiring initalizatin  of the reducers because we added a whole new thing to handle it cuz we're cute :)
     const [saturation, setSaturation] = useState(shades[2].s)
     const [lightness, setLightness] = useState(shades[2].l)
     
@@ -57,28 +57,112 @@ export const ColorCircleKonva = (props) => {
     const handlerCircle = useRef(null)
     const stage = useRef(null)
  
-    //helper methods for keeping handler drag within circle
-    const bindHandlerDrag = (pos) => {
+   
+    //reducer actions
+    //we store some of the values we need for mathematical calculations and color calculations as regular
+    //degular state variables. but there's some more complex calculations we want to keep out of the useEffect 
+    //hook to keep it cleaner, and the values of which we want to access in an iterable and organized way.
+    //with useReducer we are able to keep all of the calculations in one place and store information as a
+    //json
+    const updateAllHarmonies = () => {  //calculate all harmonies of chosen color based on classical color theory relationships
+            dispatch({
+               type: ACTIONS.UPDATE_ALL_HARMONIES,
+               numHarmonies, 
+               angle,
+               dist,
+               saturation,
+               centerXY
+           })
+    }
+
+    const updateHarm = (ix) => {    //update one Harmony for custom made
+        // console.log(harmoniesRef)
+        const harm = harmoniesRef.current[ix]
+        if (harm){ //cuz we set harmRef initially to null / empty object
+            dispatch({
+                            type: ACTIONS.UPDATE_HARMONY,
+                            x: harm.attrs.x,
+                            y: harm.attrs.y,
+                            ix: ix,
+                            centerXY: centerXY,
+                            radius: radius
+            })
+        }
+    }    
+
+    const updateShade = (ix) => {   //update one shade for individual manipulation
+        // console.log(harmoniesRef)
+        const shade = shadesRef.current[ix]
+        if (shade){ //see above
+            shadeDispatch({
+                            type: SHD_ACTIONS.UPDATE_SHADE,
+                            x: shade.attrs.x,
+                            y: shade.attrs.y,
+                            ix: ix,
+                            centerXY: centerXY,
+                            radius: satLumRadius
+            })
+        }
+    }
+    
+    const updateAllShades = (ix) => {   //update all shades in the same manner as the currently selected one
+        const shade = shadesRef.current[ix]
+        if (shade) {
+            shadeDispatch({
+                type: SHD_ACTIONS.UPDATE_ALL_SHADES,
+                x: shade.attrs.x,
+                y: shade.attrs.y,
+                ix: ix,
+                centerXY: centerXY,
+                radius: satLumRadius
+            })
+        }
+    }
+
+
+    const addHarm = (i) => {    //create a placeholder for handling when we are moving from 3 to 4 
+        dispatch(
+            {type: ACTIONS.ADD_HARMONY, 
+            key: i,    
+            centerXY
+                })
+    }
+
+
+    //event methods: mouse drag
+    const handlerDrag = () => {
+
+        if (handlerCircle.current) {
+            setHandleCenter([handlerCircle.current.attrs.x, handlerCircle.current.attrs.y]) // update it for our other calculations which use it
+            const deltas = getDeltas(handleCenter, centerXY)
+            setAngle(getAngle(deltas))
+            setDist(getDist(deltas))
+            setWheelColor(getOneShadeColor(angle, shades[2].s, shades[2].l))
+            setComplement(getComplement(numHarmonies, angle, dist, saturation, centerXY))   
+
+            setFocusHue(angle)            
+        }
+    }
+
+     //helper methods for keeping handler drag within circle
+     const bindHandlerDrag = (pos) => {
         const x = centerXY[0]
         const y = centerXY[1]
         const deltas = getDeltas([pos.x, pos.y], [x,y])
         const distance = getDist(deltas)
         const scale = (radius/2) / distance
         const scale2 =  ((radius * 2/3)/2) / distance
-        console.log('scale2')
-        console.log(scale2)
         
-        //is the radius / new dist < 1 --> outside circle
-        //is the 2ndradius / dist < 1 --> outside second circle
+       
         
-        if (scale < 1) {
+        if (scale < 1) {  //is the radius / new dist < 1 --> outside circle
                 return {
                     y: Math.round((pos.y - y) * scale + y),
                     x: Math.round((pos.x - x) * scale + x),
                 };
             
         } else {
-            if (scale2 < 1) {
+            if (scale2 < 1) {         //is the 2ndradius / dist < 1 --> outside second circle
                 return pos;
             } else {
                 return {
@@ -96,7 +180,7 @@ export const ColorCircleKonva = (props) => {
         const distance = getDist(deltas)
         const scale = (satLumRadius) / distance
 
-        if (scale < 1) {
+        if (scale < 1) {    //see above
             return {
                 y: Math.round((pos.y - y) * scale + y),
                 x: Math.round((pos.x - x) * scale + x),
@@ -108,95 +192,9 @@ export const ColorCircleKonva = (props) => {
 
     }
 
-    //reducer actions and promises
-    const fetchHarmonies = async () => {
-        await dispatch({
-            type: ACTIONS.GET_HARMONIES}
-        )
-    }
-
-    const updateAllHarmonies = () => {
-            dispatch({
-               type: ACTIONS.UPDATE_ALL_HARMONIES,
-               numHarmonies, 
-               angle,
-               dist,
-               saturation, 
-               centerXY
-           })
-    }
-
-    const updateHarm = (ix) => {
-        // console.log(harmoniesRef)
-        const harm = harmoniesRef.current[ix]
-        if (harm){
-            dispatch({
-                            type: ACTIONS.UPDATE_HARMONY,
-                            x: harm.attrs.x,
-                            y: harm.attrs.y,
-                            ix: ix,
-                            centerXY: centerXY,
-                            radius: radius
-            })
-        }
-    }    
-
-    const updateShade = (ix) => {
-        // console.log(harmoniesRef)
-        const shade = shadesRef.current[ix]
-        if (shade){
-            shadeDispatch({
-                            type: SHD_ACTIONS.UPDATE_SHADE,
-                            x: shade.attrs.x,
-                            y: shade.attrs.y,
-                            ix: ix,
-                            centerXY: centerXY,
-                            radius: satLumRadius
-            })
-        }
-    }
-    
-    const updateAllShades = (ix) => {
-        const shade = shadesRef.current[ix]
-        if (shade) {
-            shadeDispatch({
-                type: SHD_ACTIONS.UPDATE_ALL_SHADES,
-                x: shade.attrs.x,
-                y: shade.attrs.y,
-                ix: ix,
-                centerXY: centerXY,
-                radius: satLumRadius
-            })
-        }
-    }
-
-
-    const addHarm = (i) => {
-        dispatch(
-            {type: ACTIONS.ADD_HARMONY, 
-            key: i,    
-            centerXY
-                })
-    }
-
-    //event methods
-    const handlerDrag = () => {
-
-        if (handlerCircle.current) {
-            setHandleCenter([handlerCircle.current.attrs.x, handlerCircle.current.attrs.y])
-            const deltas = getDeltas(handleCenter, centerXY)
-            setAngle(getAngle(deltas))
-            setDist(getDist(deltas))
-            setWheelColor(getOneShadeColor(angle, shades[2].s, shades[2].l))
-            setComplement(getComplement(numHarmonies, angle, dist, saturation, centerXY))   
-
-            setFocusHue(angle)            
-        }
-    }
-
     
 
-        //event methods for inputs
+    //event methods for inputs
     const handleHarmoniesInput = (e) => {
         setNumHarmonies(e.target.value)
         if (toggleHarmonies && Object.values(harmonies).length < numHarmonies) {
@@ -214,8 +212,13 @@ export const ColorCircleKonva = (props) => {
     }
 
     //helper methods / component-'constructors'
+    ///created some/most of the graphics as returns from helper methods mainly
+    ///bc i wanted to keep the functional components return as clean as possible
+    ///so i wouldn't get lost inside the return lol
 
-    const createHarmCircle = (harmony, index) => {
+    const createHarmCircle = (harmony, index) => {      //circular handles for harmonies = takes a harmony color and maps it to
+                                                        //to a position on our hue circle 
+                                                        //for the primary color i did in the return cuz there's just one
         const assignRef = (el) => {harmoniesRef.current[index]= el}
             return(  
         
@@ -236,10 +239,11 @@ export const ColorCircleKonva = (props) => {
                     }
                     width={radius/10} 
                     height={radius/10} 
-                    fill={getOneShadeColor(harmony.angle, shades[2].s, shades[2].l)} /> )
+                    fill={getOneShadeColor(harmony.angle, shades[2].s, shades[2].l)} />
+            )
     }
 
-    const createShadeHandle = (shade, index) => {
+    const createShadeHandle = (shade, index) => {           //maps saturation and light values to a circle
         const assignRef = (el) => {shadesRef.current[index]= el}
         const hue = focusHue
             return( 
@@ -282,14 +286,7 @@ export const ColorCircleKonva = (props) => {
         return renderedHarms.map( (harmony,ix) => createHarmCircle(harmony, ix))
     }
 
-    const renderHarmonieSquares = () => {
-        let harms = Object.values(harmonies)
-        let renderedHarms = []
-        harms.map((harmony, ix) => harmony.key < numHarmonies ? renderedHarms.push(harmony) : "")
-        // return renderedHarms.map( (harmony,ix) => createHarmonySquare(harmony, 600+(200*ix), 300+(200*ix) ))
-    }
-
-    const renderComplement = () => {
+    const renderComplement = () => {   
         return(<Circle 
         key={complement.key} 
         x={complement.x} 
@@ -302,25 +299,12 @@ export const ColorCircleKonva = (props) => {
     }
 
 
-
-
-    useEffect( () => {
-        !toggleHarmonies && updateAllHarmonies()
-        if (toggleHarmonies) {
-            for (let i = 0; i < numHarmonies; i++) {
-                if (Object.values(harmonies).length < numHarmonies && !harmonies[i])
-                { addHarm(i) }            
-            }
-        }
-        setSaturation((shades[2].s / 100))
-        setWheelColor(getOneShadeColor(angle, shades[2].s, shades[2].l))
-            
-
-    }, [toggleHarmonies, toggleComplement, numHarmonies, angle, shades, toggleShades, focusHue])
+    //GRAPHICAL ELEMENTS the big square and rectangular things 
 
 
     const createPrimaryShades = (x,y, height, width) => {
-      
+    //maps our user inputs on the shade and color wheels to colors
+    //we love you user :)
         return (
             <>
             <Rect 
@@ -365,6 +349,7 @@ export const ColorCircleKonva = (props) => {
             </>)
 
     }
+
     const createPrimarySquare = ()=> {
         if (numHarmonies === 0){
             const x= windowWidth / 2
@@ -401,6 +386,11 @@ export const ColorCircleKonva = (props) => {
             )
         }
     }
+
+
+    //the next are graphical elements for the harmonic colors
+    //the colors are generated via user input or
+    //calculated based on their input re: the primary colors
 
     const create2NDShades = (x,y,height, width) => {
         const hue = harmonies[0].angle
@@ -573,13 +563,25 @@ export const ColorCircleKonva = (props) => {
                 height={height}
                 width={height}
                         fill={wheelColor}
-                    />
+                />
             )
         }
 
     }
 
+    useEffect( () => {
+        !toggleHarmonies && updateAllHarmonies()
+        if (toggleHarmonies) {
+            for (let i = 0; i < numHarmonies; i++) {
+                if (Object.values(harmonies).length < numHarmonies && !harmonies[i])
+                { addHarm(i) }            
+            }
+        }
+        setSaturation((shades[2].s / 100))
+        setWheelColor(getOneShadeColor(angle, shades[2].s, shades[2].l))
+            
 
+    }, [toggleComplement, numHarmonies, angle, shades, toggleShades, focusHue])
 
 
     return (
@@ -588,7 +590,10 @@ export const ColorCircleKonva = (props) => {
             ref={stage} 
             width={window.innerWidth} 
             height={window.innerHeight} >
-                <Layer listening={false}>
+                <Layer listening={false}>   
+                    {/* this layer is not listening for any user input which improves performance,
+                    so our HTML elements and graphical components which are not being directly manipulated
+                    will be placed her*/}
                 
                 <Html transform={true} 
                     divProps={{
@@ -598,14 +603,14 @@ export const ColorCircleKonva = (props) => {
                         }
                     }}>
 
-                    {/*Select for number of harmonies */}
+                    {/*Select for number of harmonies - just fyi these notes are mainly for myself
+                    to not get lost in the sauce*/}
                     <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
                     <InputLabel># of Harmonies</InputLabel>
                     <Select
                     value={numHarmonies}
                     onChange={(e) => {
                         setNumHarmonies(e.target.value)
-                        // updateAllHarmonies()
                     }}>
                     <MenuItem key={1} value={0}>Monochrome</MenuItem>
                     <MenuItem key={2} value={2}>Triad</MenuItem>
@@ -641,7 +646,7 @@ export const ColorCircleKonva = (props) => {
 
 
                    {/* color picker circle */}
-                <RainbowFill 
+                <RainbowFill
                     xPos={centerXY[0]} 
                     yPos={centerXY[1]}
                     rad={radius/2}
@@ -660,6 +665,7 @@ export const ColorCircleKonva = (props) => {
                 {create3RDHarmSquare()}
                 {create4THHarmSquare()}
                 </Layer> 
+
                 <Layer>
              
                 <Circle key={'handlerCircle'} 
@@ -675,19 +681,22 @@ export const ColorCircleKonva = (props) => {
                     dragBoundFunc={bindHandlerDrag} 
                     onDragMove={handlerDrag}
                 />
-                <Text 
+
+                {/* This text box is mainly here for debug and it's commented out 
+                but it's here now mainly in honor of how much I used it while debugging
+                and fixing my mathetmatical calculations both in mapping user input and 
+                displaying it for the automatic modes. */}
+                {/* <Text 
                     key={'yalla'} 
                     x={handleCenter[0]}
                     y={handleCenter[1]} 
-                    text={`Angle: ${angle} Location: ${handleCenter} From Formula: ${getCirclePoint(angle, dist, centerXY)} Sat: ${saturation}`}/>              
+                    text={`Angle: ${angle} Location: ${handleCenter} From Formula: ${getCirclePoint(angle, dist, centerXY)} Sat: ${saturation}`}/>               */}
                                         
 
-                
+                {/* below are from all of the component creator helper methods
+                we detailed above */}
                 {harmonies && renderHarmonies()}
                 {shades && renderShadeHandles()}
-        
-                
-
                 {(toggleComplement && complement) && renderComplement()}
                 </Layer>
 
