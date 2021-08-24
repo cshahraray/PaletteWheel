@@ -536,7 +536,7 @@ export const ColorCircleKonva = (props) => {
         if (type === 'primary') {
             hue = angle;
         } else if (type === '4th harm') {
-            hue = harmonies[3].angle
+            hue = harmonies[2].angle 
         } else {
             hue = complement.angle
         }
@@ -637,7 +637,7 @@ export const ColorCircleKonva = (props) => {
 
     }
 
-    useEffect( () => {
+    useLayoutEffect( () => {
         !toggleHarmonies && updateAllHarmonies()
         if (toggleHarmonies) {
             for (let i = 0; i < numHarmonies; i++) {
@@ -645,11 +645,14 @@ export const ColorCircleKonva = (props) => {
                 { addHarm(i) }            
             }
         }
+        if (numHarmonies === 3) {
+            setToggleComplement(false);
+        }
         setSaturation((shades[2].s / 100))
         setWheelColor(getOneShadeColor(angle, shades[2].s, shades[2].l))
             
 
-    }, [toggleComplement, numHarmonies, angle, shades, toggleShades, focusHue])
+    }, [toggleHarmonies, numHarmonies, angle, shades, toggleShades, focusHue])
 
 
     return (
