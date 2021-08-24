@@ -397,8 +397,8 @@ export const ColorCircleKonva = (props) => {
         return (
             <>
             <Rect 
-                x={x + (width * 5/8)}
-                y={y + (height * 7/10)}
+                x={x + (width * 5/9)}
+                y={y + (height * 10/15)}
                 stroke={'gray'}
                 strokeWidth={1}
                 height={height / 6}
@@ -406,8 +406,8 @@ export const ColorCircleKonva = (props) => {
                 fill = {getOneShadeColor(hue, shades[0].s, shades[0].l)}
             />
             <Rect 
-                x={x + (width * 5/8)}
-                y={y + (height * 5/10)}
+                x={x + (width * 5/9)}
+                y={y + (height * 7/15)}
                 stroke={'gray'}
                 strokeWidth={1}
                 height={height / 6}
@@ -415,8 +415,8 @@ export const ColorCircleKonva = (props) => {
                 fill = {getOneShadeColor(hue, shades[1].s, shades[1].l)}
             />
              <Rect 
-                x={x + (width * 5/8)}
-                y={y + (height * 3/10)}
+                x={x + (width * 5/9)}
+                y={y + (height * 4/15)}
                 stroke={'gray'}
                 strokeWidth={1}
                 height={height / 6}
@@ -425,8 +425,8 @@ export const ColorCircleKonva = (props) => {
             />
 
             <Rect 
-                x={x + (width * 5/8)}
-                y={y + (height * 1/10)}
+                x={x + (width * 5/9)}
+                y={y + (height * 1/15)}
                 stroke={'gray'}
                 strokeWidth={1}
                 height={height / 6}
@@ -467,8 +467,8 @@ export const ColorCircleKonva = (props) => {
         return (
             <>
             <Rect 
-                y={y + (height * 5/8)}
-                x={x + (width * 7/10)}
+                y={y + (height * 5/9)}
+                x={x + (width * 10/15)}
                 stroke={'gray'}
                 strokeWidth={1}
                 height={width / 6}
@@ -476,8 +476,8 @@ export const ColorCircleKonva = (props) => {
                 fill = {getOneShadeColor(hue, shades[0].s, shades[0].l)}
             />
               <Rect 
-                y={y + (height * 5/8)}
-                x={x + (width * 5/10)}
+                y={y + (height * 5/9)}
+                x={x + (width * 7/15)}
                 stroke={'gray'}
                 strokeWidth={1}
                 height={width / 6}
@@ -485,8 +485,8 @@ export const ColorCircleKonva = (props) => {
                 fill = {getOneShadeColor(hue, shades[1].s, shades[1].l)}
             />
              <Rect 
-                y={y + (height * 5/8)}
-                x={x + (width * 3/10)}
+                y={y + (height * 5/9)}
+                x={x + (width * 4/15)}
                 stroke={'gray'}
                 strokeWidth={1}
                 height={width / 6}
@@ -494,8 +494,8 @@ export const ColorCircleKonva = (props) => {
                 fill = {getOneShadeColor(hue, shades[3].s, shades[3].l)}
             />
             <Rect 
-                y={y + (height * 5/8)}
-                x={x + (width * 1/10)}
+                y={y + (height * 5/9)}
+                x={x + (width * 1/15)}
                 stroke={'gray'}
                 strokeWidth={1}
                 height={width / 6}
@@ -530,22 +530,82 @@ export const ColorCircleKonva = (props) => {
             }
     }
 
+    const create4THshades = (x, y, height, type) => {
+        const width = height;
+        let hue
+        if (type === 'primary') {
+            hue = angle;
+        } else if (type === '4th harm') {
+            hue = harmonies[3].angle
+        } else {
+            hue = complement.angle
+        }
+        return (
+            <>
+            <Rect 
+                x={x + width * 4/20}
+                y={y + (height * (14/20))}
+                stroke={'gray'}
+                strokeWidth={1}
+                height={height / 5}
+                width = {width / 5}
+                fill = {getOneShadeColor(hue, shades[0].s, shades[0].l)}
+            />
+            <Rect 
+                x={x + width * (9/20)}
+                y={y + height * (14/20)}
+                height={height / 5}
+                width = {width / 5}
+                stroke={'gray'}
+                strokeWidth={1}
+                fill = {getOneShadeColor(hue, shades[1].s, shades[1].l)}
+            />
+            <Rect 
+                x={x + (width * 7/10)}
+                y={y + (height * 9/20)}
+                height={height / 5}
+                width = {width / 5}
+                stroke={'gray'}
+                strokeWidth={1}
+                fill = {getOneShadeColor(hue, shades[3].s, shades[3].l)}
+            />
+
+<Rect 
+                x={x + (width * 7/10)}
+                y={y + (height * 4/20 )}
+                height={height / 5}
+                width = {width / 5}
+                stroke={'gray'}
+                strokeWidth={1}
+                fill = {getOneShadeColor(hue, shades[4].s, shades[4].l)}
+            />     
+        
+
+            </>
+        )
+    }
+
     const create4THHarmSquare = () => {
         const x = windowWidth / 2 + (radius * (2/3))
         const y = centerXY[1] - (radius / 2 ) + (radius *(2/3))
         const height = radius / 3
         if (harmonies[2]) {
             let harmony = harmonies[2]
-            return (<Rect
+            return (
+                    <>
+                    <Rect
                         key={harmony.key}
                         x={x}
                         y={y}
                         height={height}
                         width={height}
                         fill={getOneShadeColor(harmony.angle, shades[2].s, shades[2].l)}
-                    /> )
+                    />
+                    {create4THshades(x, y, height, '4th harm')}
+                    </> )
         } else if (toggleComplement) {
             return (
+                <>
                 <Rect
                         key={'complement'}
                         x={x}
@@ -554,18 +614,26 @@ export const ColorCircleKonva = (props) => {
                         width={height}
                         fill={getOneShadeColor(complement.angle, shades[2].s, shades[2].l)}
                     />
+                {create4THshades(x, y, height, 'complement')}
+                </>
             )
         } else {
             return (
+                <>
                 <Rect
                 x={x}
                 y={y}
                 height={height}
                 width={height}
-                        fill={wheelColor}
+                fill={wheelColor}
                 />
+                {create4THshades(x, y, height, 'primary')}
+
+                </>
             )
         }
+
+    
 
     }
 

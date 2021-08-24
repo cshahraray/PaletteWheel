@@ -80,7 +80,7 @@ export const SatLumCircle = (props) => {
              width={2*rad} 
              height={2*rad} 
              rotation={90}
-             x={xPos} 
+             x={xPos}
               y={yPos}
                image={imageCanvas}/>
         </>
