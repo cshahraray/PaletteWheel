@@ -14,8 +14,7 @@ import { ACTIONS, harmoniesReducer, SHD_ACTIONS, shadeReducer } from '../reducer
 import { HarmonySquares } from './harmony-squares';
 import { SatLumCircle } from '../../graphics/sat-lum-circle-graphic';
 import { getAngleFromLightness, getDefaultShades, getDistFromSat, getOneShadeColor } from '../utils/shade-utils';
-//action consatants
-
+import * as htmlToImage from 'html-to-image'; 
 
 
 
@@ -651,7 +650,17 @@ export const ColorCircleKonva = (props) => {
 
     }, [toggleHarmonies, numHarmonies, angle, shades, toggleShades, focusHue])
 
-   
+   //image downloads:
+         // function from https://stackoverflow.com/a/15832662/512042
+        const downloadURI = (uri, name) => {
+            var link = document.createElement('a');
+            link.download = name;
+            link.href = uri;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+    
 
 
     return (
@@ -711,6 +720,15 @@ export const ColorCircleKonva = (props) => {
                         onClick={() => {setToggleShades(!toggleShades)} }>
                             {toggleShades ? "Adjust All Shades" : "Adjust Shades Individually"} 
                     </Button>
+                    <Button
+                        variant="contained"
+                        onClick={ () => {
+                            let dataURL = stage.current.toDataURL({ pixelRatio: 1 });
+                            downloadURI(dataURL, 'stage.png');
+                            }}
+                        >
+                            Save your palette
+                        </Button>
                 </Html>
                    
 
