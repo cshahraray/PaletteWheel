@@ -586,7 +586,7 @@ export const ColorCircleKonva = (props) => {
         const x = windowWidth / 2 + (radius * (2/3))
         const y = centerXY[1] - (radius / 2 ) + (radius *(2/3))
         const height = radius / 3
-        if (harmonies[2]) {
+        if (numHarmonies === 3) {
             let harmony = harmonies[2]
             return (
                     <>
