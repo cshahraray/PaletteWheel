@@ -20,8 +20,8 @@ import { getAngleFromLightness, getDefaultShades, getDistFromSat, getOneShadeCol
 
 
 export const ColorCircleKonva = (props) => {
-    const windowHeight = window.innerHeight
-    const windowWidth = window.innerWidth
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight)
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth)
 
     const [radius, setRadius] =  useState(Math.round(windowWidth/3));
     const [satLumRadius, setSatLumRadius] = useState(Math.round(radius/3))
@@ -300,8 +300,6 @@ export const ColorCircleKonva = (props) => {
 
 
     //GRAPHICAL ELEMENTS the big square and rectangular things 
-
-
     const createPrimaryShades = (x,y, height, width) => {
     //maps our user inputs on the shade and color wheels to colors
     //we love you user :)
@@ -637,6 +635,8 @@ export const ColorCircleKonva = (props) => {
 
     }
 
+
+
     useLayoutEffect( () => {
         !toggleHarmonies && updateAllHarmonies()
         if (toggleHarmonies) {
@@ -650,6 +650,8 @@ export const ColorCircleKonva = (props) => {
         }            
 
     }, [toggleHarmonies, numHarmonies, angle, shades, toggleShades, focusHue])
+
+   
 
 
     return (

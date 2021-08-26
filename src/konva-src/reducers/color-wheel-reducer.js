@@ -79,18 +79,9 @@ export function shadeReducer(state, action) {
             newState[ix].l += lightValChange;
             newState[ix].s += satValChange;
 
-            if (newState[ix].l > 100) {
-                newState[ix].l %= 100;
-            } else if (newState[ix].l < 0) {
-                newState[ix].l += 100
-            }
-
-            if (newState[ix].s >= 100) {
-                newState[ix].s %= 100;
-            } else if (newState[ix].s <= 0) {
-                newState[ix].s += 100
-            }
             
+
+          
             ang = getAngleFromLightness(newState[ix].l, action.radius)
             distance = getDistFromSat(newState[ix].s, action.radius)
             posXY = getCirclePoint(ang, distance, action.centerXY)
