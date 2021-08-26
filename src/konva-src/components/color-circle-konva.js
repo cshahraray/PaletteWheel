@@ -1,20 +1,14 @@
-import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { Stage, Layer, Circle, Text, Rect, FastLayer } from "react-konva";
+import React, { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
+import { Stage, Layer, Circle, Text, Rect, } from "react-konva";
 import {Html} from "react-konva-utils"
 // import {  } from '../utils/circle-utils';
 // import { getCirclePoint } from '../utils/circle-utils';
-import { getCirclePoint, getDeltas, angle2Color, getAngle, angleSat2Color, getDist, dist2Sat, getHarmonies, getComplement, getHarmonyObj, dummyHarmonyObj } from '../../utils/konva-circle-utils';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import { Button } from '@material-ui/core';
+import { getCirclePoint, getDeltas, getAngle, getDist, getHarmonies, getComplement} from '../../utils/konva-circle-utils';
+import { Button, InputLabel, MenuItem, FormControl, Select } from '@material-ui/core';
 import { RainbowFill } from '../../graphics/rainbowfill';
 import { ACTIONS, harmoniesReducer, SHD_ACTIONS, shadeReducer } from '../reducers/color-wheel-reducer';
-import { HarmonySquares } from './harmony-squares';
 import { SatLumCircle } from '../../graphics/sat-lum-circle-graphic';
-import { getAngleFromLightness, getDefaultShades, getDistFromSat, getOneShadeColor } from '../utils/shade-utils';
-import * as htmlToImage from 'html-to-image'; 
+import { getDefaultShades, getOneShadeColor } from '../utils/shade-utils';
 
 
 
@@ -71,7 +65,6 @@ export const ColorCircleKonva = (props) => {
     }
 
     const updateHarm = (ix) => {    //update one Harmony for custom made
-        // console.log(harmoniesRef)
         const harm = harmoniesRef.current[ix]
         if (harm){ //cuz we set harmRef initially to null / empty object
             dispatch({
@@ -86,7 +79,6 @@ export const ColorCircleKonva = (props) => {
     }    
 
     const updateShade = (ix) => {   //update one shade for individual manipulation
-        // console.log(harmoniesRef)
         const shade = shadesRef.current[ix]
         if (shade){ //see above
             shadeDispatch({
@@ -585,9 +577,10 @@ export const ColorCircleKonva = (props) => {
     const create4THHarmSquare = () => {
         const x = windowWidth / 2 + (radius * (2/3))
         const y = centerXY[1] - (radius / 2 ) + (radius *(2/3))
-        const height = radius / 3
+        const height = radius / 3 
         if (numHarmonies === 3) {
-            let harmony = harmonies[2]
+            if (harmonies[2]) {
+                let harmony = harmonies[2]
             return (
                     <>
                     <Rect
@@ -597,9 +590,10 @@ export const ColorCircleKonva = (props) => {
                         height={height}
                         width={height}
                         fill={getOneShadeColor(harmony.angle, shades[2].s, shades[2].l)}
-                    />
+                     />
                     {create4THshades(x, y, height, '4th harm')}
                     </> )
+            }
         } else if (toggleComplement) {
             return (
                 <>
@@ -636,8 +630,9 @@ export const ColorCircleKonva = (props) => {
 
 
 
-    useLayoutEffect( () => {
+    useEffect( () => {
         !toggleHarmonies && updateAllHarmonies()
+
         if (toggleHarmonies) {
             for (let i = 0; i < numHarmonies; i++) {
                 if (Object.values(harmonies).length < numHarmonies && !harmonies[i])

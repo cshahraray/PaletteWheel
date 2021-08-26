@@ -15,9 +15,7 @@ export function harmoniesReducer(state, action) {
     switch(action.type) {
         case ACTIONS.UPDATE_ALL_HARMONIES:
             let {numHarmonies, angle, dist, centerXY} = action;
-            console.log(centerXY)
             newState = getHarmonies(numHarmonies, angle, dist, centerXY);
-            // console.log(newState)
             return newState;
         case ACTIONS.UPDATE_HARMONY:
             const pointXY = [action.x, action.y];
@@ -31,14 +29,12 @@ export function harmoniesReducer(state, action) {
         case ACTIONS.ADD_HARMONY:
             newState = Object.assign({}, state)
             newState[action.key]= dummyHarmonyObj(action.key, action.centerXY)
-            console.log('Add harmony')
-            console.log(newState)
+   
             return newState;
             
         case ACTIONS.GET_HARMONIES:
             return state
         default:
-            // console.log(state)
             return state
     }
 }
@@ -71,7 +67,6 @@ export function shadeReducer(state, action) {
         newState[ix].s = shadeSat
         return newState;
     case SHD_ACTIONS.UPDATE_ALL_SHADES:
-        console.log("update all shades")
         const lightValChange = shadeLight - state[ix].l
         const satValChange = shadeSat - state[ix].s
         let ang, distance, posXY
